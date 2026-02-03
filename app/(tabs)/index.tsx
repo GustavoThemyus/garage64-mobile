@@ -1,14 +1,28 @@
-import { StyleSheet } from 'react-native';
+import CarCard from "@/src/components/CarCard";
+import { cars } from "@/src/data/cars";
+import { FlatList, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
 
-export default function TabOneScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <Text style={styles.title}>Garage64</Text>
+
+      <FlatList
+        data={cars}
+        numColumns={2}
+        contentContainerStyle={{ paddingHorizontal: 5, paddingVertical: 10 }}
+        columnWrapperStyle={styles.row}
+        keyExtractor={(item) => item.info.id.toString()}
+        renderItem={({ item }) => (
+          <CarCard
+            car={item}
+            onPress={() => console.log("Clicou no " + item.info.model)}
+          />
+        )}
+      />
     </View>
   );
 }
@@ -16,16 +30,21 @@ export default function TabOneScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#131313",
+    padding: 20,
   },
+
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "#FFD700",
+    marginBottom: 20,
+    textAlign: "center",
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+
+  row: {
+    gap: 15,
+    marginBottom: 12,
+    justifyContent: "center",
   },
 });
