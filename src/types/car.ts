@@ -18,7 +18,7 @@ type CarSpecs = {
   displacement: number; // L
   traction: string;
   aspiration: string;
-  weight: number; // Kg
+  weight: number[]; // Kg (lb)
   transmission: string;
   wheels: string;
   direction: string;
@@ -27,21 +27,22 @@ type CarSpecs = {
 
 type CarPerformance = {
   torque: number[]; // [Nm], [RPM]
-  topSpeed: number; // ~(number)Km/h
-  acceleration: number; // 0-100km/h ~(number)s 
+  topSpeed: number[]; // ~(number)km/h (~(number)mph)
+  acceleration: number; // 0-100km/h ~(number)s
   hp: number; // HP
   consumption: number; // ~(number)Km/L
 };
 
 type CarRules = {
   allowAWD: boolean;
+  allowNOS: boolean;
   allowedAspirations: string[];
   canChangeTraction: boolean;
   maxHP: number; // ~(number) HP
 };
 
 type CarHistory = {
-  curiosities: string;
+  curiosities: string[];
   appearances: string[];
 };
 

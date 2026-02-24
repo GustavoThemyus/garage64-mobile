@@ -4,19 +4,25 @@ import { Car } from "../types/car";
 
 interface CarCardProps {
   car: Car;
+  cardWidth: number;
   onPress: () => void;
 }
 
-export default function CarCard({ car, onPress }: CarCardProps) {
+export default function CarCard({ car, onPress, cardWidth }: CarCardProps) {
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
+    <TouchableOpacity
+      style={[styles.card, { width: cardWidth }]}
+      onPress={onPress}
+    >
       <View style={styles.imageContainer}>
         <Image source={{ uri: car.info.image }} style={styles.image} />
         <View style={styles.flagBadge}>
           <CountryFlag isoCode={car.info.countryCode.toLowerCase()} size={10} />
         </View>
       </View>
-      <Text style={styles.model}>{car.info.model}</Text>
+      <Text style={styles.model} numberOfLines={1} ellipsizeMode="tail">
+        {car.info.model}
+      </Text>
       <Text style={styles.details}>
         {car.info.brand} - {car.info.year}
       </Text>
@@ -30,8 +36,6 @@ export default function CarCard({ car, onPress }: CarCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    flex: 1,
-    maxWidth: "48%",
     backgroundColor: "#1E1E1E",
     borderRadius: 5,
     padding: 10,
@@ -93,7 +97,7 @@ const styles = StyleSheet.create({
   },
 
   power: {
-    color: "#FFD700",
+    color: "#e4c413",
     fontSize: 18,
     marginBottom: 2,
     marginTop: 10,
