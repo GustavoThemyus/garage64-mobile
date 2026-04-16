@@ -1,34 +1,53 @@
 import CarCard from "@/src/components/CarCard";
 import { CarFiltersOverlay } from "@/src/components/CarFiltersOverlay";
 import { carsMoch } from "@/src/data/carsMoch";
+import { filterCars } from "@/src/data/filterCars";
 import { useState } from "react";
-import { FlatList, StyleSheet, useWindowDimensions, View } from "react-native";
+import {
+  FlatList,
+  LayoutAnimation,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
-  const [filters, setFilters] = useState({
-    country: null as string | null,
-    type: null as string | null,
-    minHP: null as number | null,
-    maxHP: null as number | null,
-  })
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+
+  function toggleFilter(filterName: string) {
+    if (selectedFilters.includes(filterName)) {
+      setSelectedFilters(selectedFilters.filter((item) => item !== filterName));
+    } else {
+      setSelectedFilters([...selectedFilters, filterName]);
+    }
+  }
+
+  function handleToggleFilter() {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setIsFilterOpen((prev) => !prev);
+  }
 
   let columns: number = width < 430 ? 2 : width < 650 ? 3 : 4;
   let availableWidth: number = width - styles.container.padding * 2;
   let totalSpacing: number = (columns - 1) * styles.row.gap;
   let cardWidth: number = (availableWidth - totalSpacing) / columns;
 
+  const carsForShow = filterCars(carsMoch, { selectedFilters });
+
   return (
     <View style={styles.container}>
       <CarFiltersOverlay
         isOpen={isFilterOpen}
-        onToggle={() => setIsFilterOpen((prev) => !prev)}
+        onToggle={handleToggleFilter}
+        toggleFilter={toggleFilter}
+        selectedFilters={selectedFilters}
       />
       <FlatList
-        data={carsMoch}
+        data={carsForShow}
         numColumns={columns}
         contentContainerStyle={{
           paddingVertical: 10,

@@ -25,22 +25,19 @@ if (
 type Props = {
   isOpen: boolean;
   onToggle: () => void;
+  toggleFilter: (filterName: string) => void;
+  selectedFilters: string[];
 };
 
-export function CarFiltersOverlay({ isOpen, onToggle }: Props) {
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
-
-  function toggleFilter(filterName: string) {
-    if (selectedFilters.includes(filterName)) {
-      setSelectedFilters(selectedFilters.filter((item) => item !== filterName));
-    } else {
-      setSelectedFilters([...selectedFilters, filterName]);
-    }
-  }
+export function CarFiltersOverlay({
+  isOpen,
+  onToggle,
+  selectedFilters,
+  toggleFilter,
+}: Props) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
   function handleToggleMenu() {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     onToggle(); // Chama a função que avisa a Home para abrir/fechar
   }
 
