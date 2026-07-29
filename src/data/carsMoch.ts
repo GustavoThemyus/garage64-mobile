@@ -1,5 +1,4 @@
 import { Car } from "../types/car";
-import { filterCars } from "./filterCars";
 
 export const carsMoch: Car[] = [
   {

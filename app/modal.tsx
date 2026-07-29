@@ -4,6 +4,7 @@ import { Platform, StyleSheet } from 'react-native';
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 
+// Tela do modal. Aquele i de informação que o usuário clica.
 export default function ModalScreen() {
   return (
     <View style={styles.container}>
@@ -17,6 +18,7 @@ export default function ModalScreen() {
   );
 }
 
+// Estilização dessa tela
 const styles = StyleSheet.create({
   container: {
     flex: 1,

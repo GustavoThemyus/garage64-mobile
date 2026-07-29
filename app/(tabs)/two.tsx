@@ -3,6 +3,7 @@ import { StyleSheet } from 'react-native';
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 
+// Função da tela da segunda aba. Genérica ainda, pois não foi mexida.
 export default function TabTwoScreen() {
   return (
     <View style={styles.container}>
@@ -13,6 +14,7 @@ export default function TabTwoScreen() {
   );
 }
 
+// Estilização da segunda aba. Também genérica pois não foi mexida.
 const styles = StyleSheet.create({
   container: {
     flex: 1,
