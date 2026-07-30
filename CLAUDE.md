@@ -85,11 +85,11 @@ A especificação vive em `docs/spec.md`. Ela é a fonte da verdade sobre o que 
 
 ## Comandos
 
-| Comando | Efeito |
-| --- | --- |
-| `npm start` | Sobe o Metro bundler e mostra o QR code do Expo Go |
-| `npm run android` / `npm run ios` / `npm run web` | Abre direto na plataforma |
-| `npx tsc --noEmit` | Checagem de tipos |
+| Comando                                           | Efeito                                             |
+| ------------------------------------------------- | -------------------------------------------------- |
+| `npm start`                                       | Sobe o Metro bundler e mostra o QR code do Expo Go |
+| `npm run android` / `npm run ios` / `npm run web` | Abre direto na plataforma                          |
+| `npx tsc --noEmit`                                | Checagem de tipos                                  |
 
 O que **não** existe neste repositório:
 
