@@ -66,11 +66,15 @@ Toque no card → abre **Car Detail**.
 
 Tela sobreposta ao Catalog. Exibe **todos** os dados do carro presentes no mock:
 
-- Imagem
-- Identificação (nome, marca, modelo, ano, geração, país, década, tipo)
-- História
-- Curiosidades
-- Especificações padrão completas
+- Imagem — `info.image`
+- Identificação — `info`: marca, modelo, ano, cor, geração, país
+- Tipo — `specs.type`
+- Especificações completas — `specs`
+- Performance — `performance`
+- Curiosidades — `history.curiosities`
+- Aparições em mídia — `history.appearances`
+
+A "década" não é campo armazenado: deriva de `info.year`. O país é armazenado como código ISO de duas letras (`info.countryCode`, ex.: `"JP"`); exibir o nome por extenso exige uma tabela de tradução própria.
 
 Ao final da tela: botão **"Create build"** e **"Compare"**. O comparador ainda permanece nessa tela e ficará abaixo do botão de Create build. Ao clicar em compare, o comparador se expande pra baixo. Surge um botão de "choose car" que o usuário pode clicar para selecionar um carro para comparar. Assim que clica, o carro aparece com a comparação em barras com os dois. Um ponteiro em cada barra indica a diferença entre os dois carros, com uma cor verde pro que for mais positivo naquela característica e uma cor vermelha pro que for mais negativo. O indicador fica no máximo do positivo, e a parte vermelho no carro que for pior, fica vermelho da parte que ele está até o teto que o outro ocupa.
 
@@ -88,9 +92,9 @@ Todo controle **inicia no valor padrão do carro**, vindo do mock.
 
 | Tipo de controle           | Aplicado a                                                                                       | Comportamento                                                                                       |
 | -------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
-| **Slider**                 | Specs numéricas ajustáveis (ex.: `displacement`, `valves`)                                       | Faixa contínua ou por passos, começando no valor de fábrica                                         |
-| **Toggle (Switch nativo)** | Specs binárias (ex.: `AWD`, `NOS`)                                                               | Switch nativo da plataforma — muda de cor no padrão iOS/Android automaticamente. Sem texto "yes/no" |
-| **Escolha única**          | `aspiration`, `transmission`, `wheels`, `steering`, `brakes` e demais campos categóricos do mock | Segmented control ou grupo de botões; exatamente uma opção ativa                                    |
+| **Slider**                 | Specs numéricas ajustáveis: `specs.displacement`, `specs.valves`                                 | Faixa contínua ou por passos, começando no valor de fábrica                                         |
+| **Toggle (Switch nativo)** | Opções binárias da build (ex.: NOS)                                                              | Switch nativo da plataforma — muda de cor no padrão iOS/Android automaticamente. Sem texto "yes/no" |
+| **Escolha única**          | `specs.aspiration`, `specs.transmission`, `specs.wheels`, `specs.direction`, `specs.brakes`, `specs.traction` e demais campos categóricos de `specs` | Segmented control ou grupo de botões; exatamente uma opção ativa                                    |
 
 > O conjunto exato de controles é derivado do mock. Todo campo configurável presente nos dados do carro vira um controle.
 
@@ -108,11 +112,15 @@ Abaixo dos controles, um painel que **recalcula a cada alteração**, sem botão
 
 Junto da saída, antes de salvar, o app exibe se o carro **suporta** a configuração montada.
 
-As restrições vêm do próprio mock, por carro. Exemplos do modelo:
+As restrições vêm do próprio mock, no grupo `rules` de cada carro:
 
-- Carro X não aceita AWD
-- Carro Y não aceita twin-turbo
-- NOS exige motor reforçado
+| Campo                        | Restringe                                                                       |
+| ---------------------------- | ------------------------------------------------------------------------------- |
+| `allowAWD: boolean`          | Se o carro aceita tração integral                                               |
+| `allowNOS: boolean`          | Se o carro aceita óxido nitroso                                                 |
+| `allowedAspirations: string[]` | Lista fechada de aspirações válidas (ex.: `["Single-Turbo", "Twin-Turbo"]`)   |
+| `canChangeTraction: boolean` | Se a tração pode ser alterada em relação à de fábrica                           |
+| `maxHP: number`              | Teto de potência que o conjunto mecânico suporta                                |
 
 **Comportamento:** configuração inválida é **exibida como aviso**, não bloqueada silenciosamente. O usuário vê o que está errado e por quê.
 
@@ -188,37 +196,77 @@ Consequência prática: nenhuma cor pode ser hardcoded em componente. Todo valor
 
 ### Car (mock, somente leitura)
 
-```
-id
-name, brand, model, year, generation
-type, country, decade
-image
-history, trivia[], appearances[]
+Fonte da verdade: `src/types/car.ts`. Os dados vivem em `src/data/carsMoch.ts`.
 
-defaultSpecs: {
-  aspiration, displacement, valves, hp, torque,
-  weight, drivetrain, transmission, wheels,
-  brakes, steering, topSpeed, acceleration, consumption
-}
+O `Car` **não é achatado**: são cinco grupos aninhados, e todo acesso passa pelo grupo (`car.info.model`, `car.performance.hp`, `car.specs.type`).
 
-rules: {
-  // restrições de compatibilidade por carro
+```
+Car {
+  info: {
+    id: number
+    brand, model: string
+    year: number
+    color: string
+    image: string           // URL
+    countryCode: string     // ISO 2 letras, ex.: "JP"
+    generation: string
+  }
+
+  specs: {
+    type: string            // ex.: "Sports Coupe"
+    engine, engineLayout: string
+    valves: number
+    valvetrain: string
+    displacement: number    // litros
+    traction: string
+    aspiration: string
+    weight: number[]        // [kg, lb]
+    transmission: string
+    wheels: string
+    direction: string
+    brakes: string
+  }
+
+  performance: {
+    hp: number
+    torque: number[]        // [Nm, RPM]
+    topSpeed: number[]      // [km/h, mph]
+    acceleration: number    // 0-100 km/h, em segundos
+    consumption: number     // km/L
+  }
+
+  rules: {
+    allowAWD: boolean
+    allowNOS: boolean
+    allowedAspirations: string[]
+    canChangeTraction: boolean
+    maxHP: number
+  }
+
+  history: {
+    curiosities: string[]
+    appearances: string[]
+  }
 }
 ```
+
+**Campos multivalor.** `weight`, `torque` e `topSpeed` são arrays de dois números, não escalares. A ordem é fixa e está anotada acima. Ler `car.performance.topSpeed` devolve um array, não um número.
 
 ### Build (criada pelo usuário)
 
 ```
 id
-carId          → referência ao Car base
+carId          → referência a Car.info.id
 name           → definido pelo usuário
 config         → todas as escolhas feitas no configurador
-computed       → { hp, torque, topSpeed, acceleration, consumption }
+computed       → mesma forma de Car.performance
 warnings[]     → avisos de compatibilidade no momento do salvamento
 createdAt
 ```
 
-**Princípio:** a Build guarda a **referência** ao carro, não uma cópia dos dados dele.
+**Princípio 1:** a Build guarda a **referência** ao carro, não uma cópia dos dados dele.
+
+**Princípio 2:** `Car.specs` descreve apenas o que saiu de fábrica. Toda modificação — inclusive opções que nenhum carro tem de origem, como NOS — existe somente em `Build.config`. O configurador lê `Car.specs` para definir o valor inicial de cada controle e `Car.rules` para saber o que é permitido, mas nunca escreve no `Car`.
 
 ---
 
@@ -239,6 +287,12 @@ Itens que precisam de decisão antes ou durante a construção.
 6. **Build inválida.** Salva com aviso ou bloqueia o botão? Resposta: aviso.
 
 7. **Imagens dos carros.** De onde vêm e sob qual licença? Projeto de portfólio público com imagens de terceiros é risco real de direito autoral. Resposta: já tem.
+
+8. **História em prosa.** Versões anteriores desta spec previam um texto corrido de história por carro, na Car Detail. O modelo atual não tem esse campo — `history` só guarda `curiosities[]` e `appearances[]`. Manter só as listas, ou acrescentar um campo de texto e preencher os 14 carros do mock? Resposta: só as listas do mock. Não haverá campo de história em prosa.
+
+9. **NOS não é campo de `specs`.** A seção 5.1 prevê um toggle de NOS e `rules.allowNOS` existe, mas nenhum carro tem NOS nas especificações de fábrica — o que faz sentido, já que é modificação, não item original. Confirma que opções assim vivem só na `config` da Build, nunca em `Car.specs`? Resposta: sim. `Car.specs` guarda apenas o que saiu de fábrica; modificações vivem só na `config` da Build.
+
+10. **Campo `color`.** Existe em `info` e está preenchido nos 14 carros, mas nenhuma tela da spec o exibe. É dado morto ou entra na Car Detail? Resposta: entra na Car Detail.
 
 ---
 
