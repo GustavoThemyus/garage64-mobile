@@ -139,6 +139,4 @@ O que existe de fato, comparado ao que a spec descreve:
 
 1. **Cores hardcoded em todo o `src/`.** `#131313`, `#1E1E1E`, `#e4c413`, `#dfc011`, `#888` e `#333` aparecem direto nos `StyleSheet.create` de `CarCard.tsx`, `CarFiltersOverlay.tsx` e `app/(tabs)/index.tsx`. Isso contradiz a regra de Convenções deste próprio arquivo e a spec §9. O tema central que deveria alimentar tudo — `constants/Colors.ts` — ainda é o do template (tint azul `#2f95dc`), não tem o amarelo da identidade, e só é consumido por `app/(tabs)/_layout.tsx` e `components/Themed.tsx`. O objeto de tema existe, mas o código real não usa. Consolidar isso é pré-requisito do toggle light/dark da spec §8.
 
-2. **NativeWind e `tailwindcss` estão no `package.json`, mas não configurados.** Não existe `babel.config.js`, `tailwind.config.js`, `metro.config.js` nem `global.css`. `className` **não funciona**. Toda estilização é `StyleSheet.create`.
-
-3. **`@types/react` e `typescript` estão duplicados** em `dependencies` e `devDependencies`, com versões diferentes (`~18.2.79` vs `~19.1.10`; `~5.3.3` vs `~5.9.2`). O typecheck passa mesmo assim, mas é ruído a resolver.
+2. **Não existe utility-class CSS neste projeto.** Sem NativeWind, sem Tailwind, sem `babel.config.js`, `tailwind.config.js`, `metro.config.js` nem `global.css`. `className` **não funciona** — toda estilização é `StyleSheet.create`. Se em algum momento a decisão for adotar NativeWind, é instalação e configuração do zero, não é só voltar a usar.
