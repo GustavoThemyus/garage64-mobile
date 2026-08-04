@@ -11,6 +11,7 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
+import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context"; // Import do hook useSafeAreaInsets, que impede que os elementos fiquem atrás do Notch do celular.
 
 // Essa é a função principal da tela inicial, que renderiza a lista de carros
@@ -74,7 +75,12 @@ export default function HomeScreen() {
           // Render dos cards de carros
           <CarCard
             car={item}
-            onPress={() => console.log("Clicou no " + item.info.model)}
+            onPress={() =>
+              router.push({
+                pathname: "/carDetails",
+                params: { carId: item.info.id },
+              })
+            }
             cardWidth={cardWidth}
           />
         )}
