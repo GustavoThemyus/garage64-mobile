@@ -65,6 +65,24 @@ Português bem escrito, mas natural. Linguagem didática, objetiva. Simples, mas
 
 ---
 
+## Como explicar
+
+O critério de sucesso é um só: **eu entender na primeira leitura.** Se eu precisar reler, a explicação falhou — independente de estar correta.
+
+**Concreto antes de abstrato.** Mostre primeiro o que acontece de fato, com valores reais e nomes reais. A regra geral vem depois, como conclusão do exemplo — nunca antes dele.
+
+**Uma ideia por vez.** Se a explicação tem três pontos, o segundo só entra depois que o primeiro fechou. Não empilhe.
+
+**Sem ressalvas prematuras.** Caso de borda, exceção e "mas atenção que" só entram depois que o caso principal foi entendido. Ressalva em cima de dúvida vira confusão.
+
+**Se eu disser que não entendi, mude o ângulo.** Não repita a mesma explicação com outras palavras — isso é ruído. Troque a analogia, troque o exemplo, ataque por outro lado.
+
+**Responda a pergunta primeiro.** Quando eu perguntar algo direto, a primeira frase é a resposta. Contexto, nuance e trade-off vêm depois, e só se acrescentarem alguma coisa.
+
+**Frase curta.** Período longo com três orações encadeadas me faz perder o fio. Corte em duas.
+
+---
+
 ## Convenções do projeto
 
 - **Idioma do código e da interface:** inglês, 100%. Nomes de variável, função, componente, arquivo, label, mensagem — tudo em inglês.
