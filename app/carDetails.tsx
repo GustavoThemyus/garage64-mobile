@@ -7,10 +7,12 @@ import { useLocalSearchParams } from "expo-router";
 export default function CarDetails() {
   const { carId } = useLocalSearchParams();
   const selectedCar = carsMoch.find((car) => car.info.id === Number(carId));
-
+  if (!selectedCar) {
+    return <Text>Not found</Text>;
+  }
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Details</Text>
+      <Text style={styles.title}>{selectedCar.info.model}</Text>
       {/* Por enquanto apenas um título simples */}
     </View>
   );
