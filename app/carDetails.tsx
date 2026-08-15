@@ -26,5 +26,6 @@ const styles = StyleSheet.create({
 
   title: {
     flex: 1,
+    color: "#fff",
   },
 });
