@@ -3,6 +3,7 @@ import CarCard from "@/src/components/CarCard";
 import { CarFiltersOverlay } from "@/src/components/CarFiltersOverlay";
 import { carsMoch } from "@/src/data/carsMoch";
 import { filterCars } from "@/src/data/filterCars";
+import { useTheme } from "@/src/theme/useTheme";
 import { useState } from "react"; // Import do hook useState
 import {
   FlatList,
@@ -21,6 +22,7 @@ export default function HomeScreen() {
   const { width } = useWindowDimensions(); // Hook useWindowDimensions aplicado a constante width, que retorna a largura da tela
   const [isFilterOpen, setIsFilterOpen] = useState(false); // Constante com useState que determina os dados de filtro aberto e fechado
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]); // Constante com useState que determina os filtros selecionados
+  const theme = useTheme();
 
   // Função toggleFilter que alterna o estado dos filtros selecionados, com os states acima
   function toggleFilter(filterName: string) {
@@ -51,7 +53,7 @@ export default function HomeScreen() {
   // Renderiza a lista de carros filtrados com FlatList
   return (
     // <View> que contém o overlay de filtros e a lista de carros
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <CarFiltersOverlay
         // Propriedades recebendo funções e estados para controlar o overlay de filtros
         isOpen={isFilterOpen}
@@ -93,7 +95,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#131313",
     padding: 16,
   },
 
