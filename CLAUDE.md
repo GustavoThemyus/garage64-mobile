@@ -153,11 +153,9 @@ O que existe de fato, comparado ao que a spec descreve:
 
 ---
 
-## Dívidas conhecidas
+## Dívida conhecida
 
-1. **Cores hardcoded em todo o `src/`.** `#131313`, `#1E1E1E`, `#e4c413`, `#dfc011`, `#888` e `#333` aparecem direto nos `StyleSheet.create` de `CarCard.tsx`, `CarFiltersOverlay.tsx` e `app/(tabs)/index.tsx`. Isso contradiz a regra de Convenções deste próprio arquivo e a spec §9. O tema central que deveria alimentar tudo — `constants/Colors.ts` — ainda é o do template (tint azul `#2f95dc`), não tem o amarelo da identidade, e só é consumido por `app/(tabs)/_layout.tsx` e `components/Themed.tsx`. O objeto de tema existe, mas o código real não usa. Consolidar isso é pré-requisito do toggle light/dark da spec §8.
-
-2. **Não existe utility-class CSS neste projeto.** Sem NativeWind, sem Tailwind, sem `babel.config.js`, `tailwind.config.js`, `metro.config.js` nem `global.css`. `className` **não funciona** — toda estilização é `StyleSheet.create`. Se em algum momento a decisão for adotar NativeWind, é instalação e configuração do zero, não é só voltar a usar.
+**Não existe utility-class CSS neste projeto.** Sem NativeWind, sem Tailwind, sem `babel.config.js`, `tailwind.config.js`, `metro.config.js` nem `global.css`. `className` **não funciona** — toda estilização é `StyleSheet.create`. Se em algum momento a decisão for adotar NativeWind, é instalação e configuração do zero, não é só voltar a usar.
 
 ## Instruções de mentoria
 
