@@ -1,6 +1,7 @@
 import { AntDesign } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useState } from "react";
+import { useTheme } from "../theme/useTheme";
 import {
   LayoutAnimation,
   Platform,
@@ -35,6 +36,8 @@ export function CarFiltersOverlay({
   selectedFilters,
   toggleFilter,
 }: Props) {
+  const theme = useTheme();
+  const itemsFilterColor = theme.textPrimary;
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
   function handleToggleMenu() {
@@ -58,12 +61,18 @@ export function CarFiltersOverlay({
   return (
     <>
       <View style={styles.root}>
-        <View style={[styles.cardContainer, isOpen && styles.cardOpen]}>
+        <View
+          style={[
+            styles.cardContainer,
+            { backgroundColor: theme.background, borderColor: theme.border },
+            isOpen && styles.cardOpen,
+          ]}
+        >
           <BlurView intensity={70} tint="dark" style={styles.blur} />
 
           <View style={styles.content}>
             <TouchableOpacity onPress={handleToggleMenu} style={styles.button}>
-              <AntDesign name="menu-fold" size={22} color="white" />
+              <AntDesign name="menu-fold" size={22} color={theme.textPrimary} />
             </TouchableOpacity>
 
             {isOpen && (
@@ -72,23 +81,36 @@ export function CarFiltersOverlay({
                   style={styles.filterCategoryButton}
                   onPress={() => handleSectionToggle("brand")}
                 >
-                  <Text style={styles.categoryText}>Brand</Text>
+                  <Text
+                    style={[styles.categoryText, { color: itemsFilterColor }]}
+                  >
+                    Brand
+                  </Text>
                   <AntDesign
                     name={expandedSection === "brand" ? "down" : "right"}
                     size={12}
-                    color="white"
+                    color={theme.textPrimary}
                   />
                 </TouchableOpacity>
 
-                <View style={styles.separatorLine} />
+                <View
+                  style={[
+                    styles.separatorLine,
+                    { backgroundColor: theme.separator },
+                  ]}
+                />
 
                 {expandedSection === "brand" && (
                   <View style={styles.expandedContent}>
                     {uniqueBrands.map((brand) => (
                       <View key={brand} style={styles.filterItemRow}>
-                        <Text style={styles.itemText}>{brand}</Text>
+                        <Text
+                          style={[styles.itemText, { color: itemsFilterColor }]}
+                        >
+                          {brand}
+                        </Text>
                         <Switch
-                          trackColor={{ true: "#dfc011" }}
+                          trackColor={{ true: theme.accent }}
                           style={{ transform: [{ scale: 0.8 }] }}
                           value={selectedFilters.includes(brand)}
                           onValueChange={() => toggleFilter(brand)}
@@ -102,23 +124,35 @@ export function CarFiltersOverlay({
                   style={styles.filterCategoryButton}
                   onPress={() => handleSectionToggle("countryCode")}
                 >
-                  <Text style={styles.categoryText}>Country</Text>
+                  <Text
+                    style={[styles.categoryText, { color: itemsFilterColor }]}
+                  >
+                    Country
+                  </Text>
                   <AntDesign
                     name={expandedSection === "countryCode" ? "down" : "right"}
                     size={12}
-                    color="white"
+                    color={theme.textPrimary}
                   />
                 </TouchableOpacity>
 
-                <View style={styles.separatorLine} />
+                <View
+                  style={
+                    (styles.separatorLine, { backgroundColor: theme.separator })
+                  }
+                />
 
                 {expandedSection === "countryCode" && (
                   <View style={styles.expandedContent}>
                     {uniqueCountries.map((countryCode) => (
                       <View key={countryCode} style={styles.filterItemRow}>
-                        <Text style={styles.itemText}>{countryCode}</Text>
+                        <Text
+                          style={[styles.itemText, { color: itemsFilterColor }]}
+                        >
+                          {countryCode}
+                        </Text>
                         <Switch
-                          trackColor={{ true: "#dfc011" }}
+                          trackColor={{ true: theme.accent }}
                           style={{ transform: [{ scale: 0.8 }] }}
                           value={selectedFilters.includes(countryCode)}
                           onValueChange={() => toggleFilter(countryCode)}
@@ -132,23 +166,36 @@ export function CarFiltersOverlay({
                   style={styles.filterCategoryButton}
                   onPress={() => handleSectionToggle("type")}
                 >
-                  <Text style={styles.categoryText}>Type</Text>
+                  <Text
+                    style={[styles.categoryText, { color: itemsFilterColor }]}
+                  >
+                    Type
+                  </Text>
                   <AntDesign
                     name={expandedSection === "type" ? "down" : "right"}
                     size={12}
-                    color="white"
+                    color={theme.textPrimary}
                   />
                 </TouchableOpacity>
 
-                <View style={styles.separatorLine} />
+                <View
+                  style={[
+                    styles.separatorLine,
+                    { backgroundColor: theme.separator },
+                  ]}
+                />
 
                 {expandedSection === "type" && (
                   <View style={styles.expandedContent}>
                     {uniqueTypes.map((type) => (
                       <View key={type} style={styles.filterItemRow}>
-                        <Text style={styles.itemText}>{type}</Text>
+                        <Text
+                          style={[styles.itemText, { color: itemsFilterColor }]}
+                        >
+                          {type}
+                        </Text>
                         <Switch
-                          trackColor={{ true: "#dfc011" }}
+                          trackColor={{ true: theme.accent }}
                           style={{ transform: [{ scale: 0.8 }] }}
                           value={selectedFilters.includes(type)}
                           onValueChange={() => toggleFilter(type)}
@@ -182,8 +229,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#333",
-    backgroundColor: "rgba(30,30,30,0.4)",
   },
 
   cardOpen: {
@@ -216,14 +261,12 @@ const styles = StyleSheet.create({
   },
 
   categoryText: {
-    color: "#ffffff",
     padding: 8,
     fontSize: 20,
     fontWeight: 500,
   },
 
   itemText: {
-    color: "#ffffff",
     padding: 8,
     fontSize: 18,
   },
@@ -241,7 +284,6 @@ const styles = StyleSheet.create({
 
   separatorLine: {
     height: 1,
-    backgroundColor: "#747474",
     marginVertical: 10,
     opacity: 0.4,
   },
