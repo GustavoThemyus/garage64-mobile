@@ -26,7 +26,7 @@ export const carsMoch: Car[] = [
       weight: [1560, 3395],
       transmission: "6-speed manual (Getrag V160)",
       wheels: "18 inch OEM forged alloys (Front 9J / Rear 9J)",
-      direction: "Hydraulic rack-and-pinion steering",
+      steering: "Hydraulic rack-and-pinion steering",
       brakes: "Brembo ventilated discs (4-piston front / 2-piston rear)",
     },
     performance: {
@@ -84,7 +84,7 @@ export const carsMoch: Car[] = [
       weight: [1490, 3285],
       transmission: "6-speed manual (Getrag V160)",
       wheels: "17 inch OEM alloy (Front 8J / Rear 9J)",
-      direction: "Hydraulic rack-and-pinion steering",
+      steering: "Hydraulic rack-and-pinion steering",
       brakes: "Ventilated disc brakes (4-piston front / 2-piston rear)",
     },
     performance: {
@@ -142,7 +142,7 @@ export const carsMoch: Car[] = [
       weight: [1210, 2680],
       transmission: "5-speed manual (G50/10)",
       wheels: "18 inch magnesium Speedline (Front 9J / Rear 11J)",
-      direction: "Manual rack-and-pinion (no power steering)",
+      steering: "Manual rack-and-pinion (no power steering)",
       brakes:
         "Ventilated discs (Big Red 4-piston calipers, derived from 964 Turbo)",
     },
@@ -199,7 +199,7 @@ export const carsMoch: Car[] = [
       weight: [1700, 3750],
       transmission: "4-speed manual (Toploader)",
       wheels: "15 inch steel or styled steel wheels",
-      direction: "Recirculating ball steering (power-assisted optional)",
+      steering: "Recirculating ball steering (power-assisted optional)",
       brakes: "Front disc / rear drum (power brakes optional)",
     },
     performance: {
@@ -255,7 +255,7 @@ export const carsMoch: Car[] = [
       weight: [1050, 2315],
       transmission: "5-speed manual",
       wheels: "15 inch OEM alloy (Front 6J / Rear 6J)",
-      direction:
+      steering:
         "Rack-and-pinion steering (manual or hydraulic assist depending on spec)",
       brakes: "Front ventilated discs / rear solid discs",
     },
@@ -309,7 +309,7 @@ export const carsMoch: Car[] = [
       weight: [1270, 2800],
       transmission: "5-speed manual",
       wheels: "17 inch OEM alloy (Front 8J / Rear 8.5J)",
-      direction: "Rack-and-pinion, hydraulic",
+      steering: "Rack-and-pinion, hydraulic",
       brakes: "Ventilated discs (4-piston front / 2-piston rear)",
     },
     performance: {
@@ -367,7 +367,7 @@ export const carsMoch: Car[] = [
       weight: [1460, 3220],
       transmission: "6-speed manual (Getrag 420G)",
       wheels: "17 inch OEM forged alloy (Front ~7.5J / Rear ~8.5J)",
-      direction: "Hydraulic rack-and-pinion steering",
+      steering: "Hydraulic rack-and-pinion steering",
       brakes: "Ventilated discs front and rear with ABS",
     },
     performance: {
@@ -424,7 +424,7 @@ export const carsMoch: Car[] = [
       weight: [1270, 2800],
       transmission: "5-speed manual (close-ratio, heavy-duty gearbox)",
       wheels: "17 inch forged BBS (Front ~8J / Rear ~8J)",
-      direction: "Hydraulic rack-and-pinion steering",
+      steering: "Hydraulic rack-and-pinion steering",
       brakes: "Ventilated discs with 4-piston front / 2-piston rear calipers",
     },
     performance: {
@@ -482,7 +482,7 @@ export const carsMoch: Car[] = [
       weight: [1700, 3750],
       transmission: "4-speed automatic (reinforced in AMG builds)",
       wheels: "17 AMG Aero / Monoblock alloys",
-      direction: "Recirculating ball steering with hydraulic power assist",
+      steering: "Recirculating ball steering with hydraulic power assist",
       brakes: "Ventilated disc brakes with ABS",
     },
     performance: {
@@ -537,7 +537,7 @@ export const carsMoch: Car[] = [
       weight: [1270, 2760],
       transmission: "6-speed manual / 4-speed automatic optional",
       wheels: "17 inch OEM alloy (Front ~7.5J / Rear ~8J)",
-      direction: "Hydraulic rack-and-pinion steering",
+      steering: "Hydraulic rack-and-pinion steering",
       brakes: "Ventilated discs (4-piston front / 2-piston rear on Spec-R)",
     },
     performance: {
@@ -595,7 +595,7 @@ export const carsMoch: Car[] = [
       weight: [1530, 3350],
       transmission: "5-speed manual (ZF) / 3-speed automatic optional",
       wheels: "15 chrome wire wheels (knock-off hubs)",
-      direction: "Recirculating ball steering",
+      steering: "Recirculating ball steering",
       brakes: "Servo-assisted disc brakes front and rear (Girling)",
     },
     performance: {
@@ -657,7 +657,7 @@ export const carsMoch: Car[] = [
       weight: [1450, 3150],
       transmission: "5-speed manual / 4-speed automatic optional",
       wheels: "16 inch OEM alloy",
-      direction: "Hydraulic rack-and-pinion steering",
+      steering: "Hydraulic rack-and-pinion steering",
       brakes: "Ventilated front discs / solid rear discs with ABS",
     },
     performance: {
@@ -714,7 +714,7 @@ export const carsMoch: Car[] = [
       weight: [1050, 2315],
       transmission: "6-speed sequential manual (straight-cut gears)",
       wheels: "18 inch center-lock racing wheels",
-      direction: "Unassisted rack-and-pinion steering",
+      steering: "Unassisted rack-and-pinion steering",
       brakes: "Carbon fiber ventilated racing discs",
     },
     performance: {
@@ -772,7 +772,7 @@ export const carsMoch: Car[] = [
       weight: [750, 1620],
       transmission: "5-speed manual",
       wheels: "13 inch alloy wheels",
-      direction: "Rack-and-pinion steering (unassisted)",
+      steering: "Rack-and-pinion steering (unassisted)",
       brakes:
         "Disc brakes front / rear (early versions had rear discs replacing older drums)",
     },

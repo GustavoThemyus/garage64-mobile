@@ -21,7 +21,7 @@ type CarSpecs = {
   weight: number[]; // Kg (lb)
   transmission: string;
   wheels: string;
-  direction: string;
+  steering: string;
   brakes: string;
 };
 

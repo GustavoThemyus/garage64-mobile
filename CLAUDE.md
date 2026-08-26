@@ -148,7 +148,7 @@ Código novo do projeto vai em `src/`.
 O que existe de fato, comparado ao que a spec descreve:
 
 - **Pronto:** Catalog — grid de cards + overlay de filtros.
-- **Stub:** `carDetails.tsx`. A navegação nem chega lá: o `onPress` do `CarCard` só faz `console.log` (`app/(tabs)/index.tsx:77`).
+- **Modal:** `carDetails.tsx`. A navegação mostra o dado básico do carro, apenas o nome/modelo.
 - **Não existe:** Build Configurator, tab Builds, tab Settings, tab Assistant. A spec §3 pede 4 tabs; existem 2, e `app/(tabs)/two.tsx` é template não modificado.
 
 ---

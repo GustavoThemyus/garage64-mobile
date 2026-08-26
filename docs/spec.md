@@ -94,7 +94,7 @@ Todo controle **inicia no valor padrão do carro**, vindo do mock.
 | -------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
 | **Slider**                 | Specs numéricas ajustáveis: `specs.displacement`, `specs.valves`                                 | Faixa contínua ou por passos, começando no valor de fábrica                                         |
 | **Toggle (Switch nativo)** | Opções binárias da build (ex.: NOS)                                                              | Switch nativo da plataforma — muda de cor no padrão iOS/Android automaticamente. Sem texto "yes/no" |
-| **Escolha única**          | `specs.aspiration`, `specs.transmission`, `specs.wheels`, `specs.direction`, `specs.brakes`, `specs.traction` e demais campos categóricos de `specs` | Segmented control ou grupo de botões; exatamente uma opção ativa                                    |
+| **Escolha única**          | `specs.aspiration`, `specs.transmission`, `specs.wheels`, `specs.steering`, `specs.brakes`, `specs.traction` e demais campos categóricos de `specs` | Segmented control ou grupo de botões; exatamente uma opção ativa                                    |
 
 > O conjunto exato de controles é derivado do mock. Todo campo configurável presente nos dados do carro vira um controle.
 
@@ -223,7 +223,7 @@ Car {
     weight: number[]        // [kg, lb]
     transmission: string
     wheels: string
-    direction: string
+    steering: string
     brakes: string
   }
 
