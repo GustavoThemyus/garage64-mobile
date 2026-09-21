@@ -18,7 +18,11 @@ export default function CarDetails() {
   const carDetail = Object.entries(selectedCar.specs).map(
     ([fieldName, fieldValue]) => (
       <View key={fieldName}>
-        <Text style={{ color: theme.textPrimary }}>{fieldName}</Text>
+        <Text style={{ color: theme.textPrimary }}>
+          {dictionary.specs[fieldName as keyof typeof dictionary.specs]}
+          {": "}
+          {fieldValue}
+        </Text>
       </View>
     ),
   );
