@@ -21,7 +21,9 @@ export default function CarDetails() {
         <Text style={{ color: theme.textPrimary }}>
           {dictionary.specs[fieldName as keyof typeof dictionary.specs]}
           {": "}
-          {fieldValue}
+          {fieldName === "weight"
+            ? `${selectedCar.specs.weight[0]} kg / ${selectedCar.specs.weight[1]} lb`
+            : fieldValue}
         </Text>
       </View>
     ),
