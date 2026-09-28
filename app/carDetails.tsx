@@ -1,6 +1,6 @@
 // Imports
 import { carsMoch } from "@/src/data/carsMoch";
-import { Text, View, StyleSheet } from "react-native"; // Imports dos componentes do React Native
+import { Text, View, ScrollView, StyleSheet } from "react-native"; // Imports dos componentes do React Native
 import { useLocalSearchParams } from "expo-router";
 import { useTheme } from "@/src/theme/useTheme";
 import { dictionary } from "@/src/data/dictionary";
@@ -17,7 +17,7 @@ export default function CarDetails() {
 
   const carDetail = Object.entries(selectedCar.specs).map(
     ([fieldName, fieldValue]) => (
-      <View key={fieldName}>
+      <ScrollView key={fieldName}>
         <Text style={{ color: theme.textPrimary }}>
           {dictionary.specs[fieldName as keyof typeof dictionary.specs]}
           {": "}
@@ -25,7 +25,7 @@ export default function CarDetails() {
             ? `${selectedCar.specs.weight[0]} kg / ${selectedCar.specs.weight[1]} lb`
             : fieldValue}
         </Text>
-      </View>
+      </ScrollView>
     ),
   );
 
