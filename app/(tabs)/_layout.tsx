@@ -33,30 +33,6 @@ export default function TabLayout() {
           title: "Catalog", // Título da tab no header
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />, // Propriedade que retorna o ícone do botão pra acessar essa aba. O expo chama ela e já define a cor padrão quando tá ativa/inativa
           // Propriedade que retorna o componente que será exibido na direita do header
-          headerRight: () => (
-            // Componente Link que redireciona para a aba modal
-            <Link href="/modal" asChild>
-              <Pressable>
-                {/*Componente que detecta toques (como o button) e dá acesso ao estado pressed (se está sendo pressionando)*/}
-                {({ pressed }) => (
-                  // É uma render prop, você passa uma função como filho, e o pressable retorna o estado atual (true ou false) pra decidir como desenhar conteúdo
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={theme.textPrimary}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
-        }}
-      />
-      <Tabs.Screen // Segundo botão clicável da segunda tab do footer
-        name="two" // ID da tab
-        options={{
-          title: "Tab Two", // Título da tab no header
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />, // Propriedade que retorna o ícone do botão pra acessar essa aba. O expo chama ela e já define a cor padrão quando tá ativa/inativa
         }}
       />
     </Tabs>

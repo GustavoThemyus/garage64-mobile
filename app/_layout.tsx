@@ -68,8 +68,6 @@ function RootLayoutNav() {
         {/* Stack.Screen define as telas da navegação. As primeira (tabs) é a tela principal, que mostra os carros disponíveis. */}
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         {/* O primeiro (tabs) é todo o sistema de abas, pois contém o layout das abas e as telas dentro delas. */}
-        <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-        {/* O modal leva pra tela de informações ao clicar no i de informação. */}
         <Stack.Screen name="carDetails" options={{ title: "Details" }} />
         {/* O carDetails é a tela de detalhes do carro, que mostra informações adicionais sobre o carro selecionado. */}
       </Stack>

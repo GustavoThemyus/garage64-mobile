@@ -1,18 +1,22 @@
 import { Link, Stack } from "expo-router";
-import { StyleSheet } from "react-native";
-
-import { Text, View } from "@/components/Themed";
+import { StyleSheet, Text, View } from "react-native";
+import { useTheme } from "@/src/theme/useTheme";
 
 // Tela de Not found. Ela aparece quando uma rota é inválida. Tem Stack, isso sginifica que ela vai por cima de todas as outras telas.
 export default function NotFoundScreen() {
+  const theme = useTheme();
   return (
     <>
       <Stack.Screen options={{ title: "Oops!" }} />
-      <View style={styles.container}>
-        <Text style={styles.title}>This screen doesn't exist.</Text>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <Text style={[styles.title, { color: theme.textPrimary }]}>
+          This screen doesn't exist.
+        </Text>
 
         <Link href="/" style={styles.link}>
-          <Text style={styles.linkText}>Go to home screen!</Text>
+          <Text style={[styles.linkText, { color: theme.textSecondary }]}>
+            Go to home screen!
+          </Text>
         </Link>
       </View>
     </>
@@ -37,6 +41,5 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontSize: 14,
-    color: "#2e78b7",
   },
 });
