@@ -120,4 +120,6 @@ What that means in practice:
 
 ## License
 
-No license file yet. Car images are loaded by URL from third party sources and are not covered by this repository.
+Released under the MIT License. See [`LICENSE`](LICENSE) for the full text.
+
+The license covers the code in this repository. Car images are loaded by URL from third party sources and are not covered by it.
