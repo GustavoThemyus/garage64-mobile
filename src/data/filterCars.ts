@@ -1,22 +1,34 @@
 import { Car } from "../types/car";
-interface FilterCriteria {
-  selectedFilters: string[];
+export interface FilterCriteria {
+  selectedBrand: string[];
+  selectedType: string[];
+  selectedCountry: string[];
 }
 
 export function filterCars(carsList: Car[], criteria: FilterCriteria) {
-  if (criteria.selectedFilters.length === 0) {
+  if (
+    criteria.selectedBrand.length === 0 &&
+    criteria.selectedType.length === 0 &&
+    criteria.selectedCountry.length === 0
+  ) {
     return carsList;
   }
 
   return carsList.filter((item) => {
     const brand = item.info.brand;
-    const country = item.info.countryCode;
     const type = item.specs.type;
+    const country = item.info.countryCode;
 
-    const hasBrand = criteria.selectedFilters.includes(brand);
-    const hasCountry = criteria.selectedFilters.includes(country);
-    const hasType = criteria.selectedFilters.includes(type);
+    const hasBrand =
+      criteria.selectedBrand.includes(brand) ||
+      criteria.selectedBrand.length === 0;
+    const hasType =
+      criteria.selectedType.includes(type) ||
+      criteria.selectedType.length === 0;
+    const hasCountry =
+      criteria.selectedCountry.includes(country) ||
+      criteria.selectedCountry.length === 0;
 
-    return hasBrand || hasCountry || hasType;
+    return hasBrand && hasType && hasCountry;
   });
 }

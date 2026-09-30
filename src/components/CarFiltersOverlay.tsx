@@ -15,6 +15,7 @@ import {
   View,
 } from "react-native";
 import { carsMoch } from "../data/carsMoch";
+import { FilterCriteria } from "../data/filterCars";
 
 if (
   Platform.OS === "android" &&
@@ -26,8 +27,8 @@ if (
 type Props = {
   isOpen: boolean;
   onToggle: () => void;
-  toggleFilter: (filterName: string) => void;
-  selectedFilters: string[];
+  toggleFilter: (category: keyof FilterCriteria, value: string) => void;
+  selectedFilters: FilterCriteria;
 };
 
 export function CarFiltersOverlay({
@@ -112,8 +113,10 @@ export function CarFiltersOverlay({
                         <Switch
                           trackColor={{ true: theme.accent }}
                           style={{ transform: [{ scale: 0.8 }] }}
-                          value={selectedFilters.includes(brand)}
-                          onValueChange={() => toggleFilter(brand)}
+                          value={selectedFilters.selectedBrand.includes(brand)}
+                          onValueChange={() =>
+                            toggleFilter("selectedBrand", brand)
+                          }
                         />
                       </View>
                     ))}
@@ -154,8 +157,12 @@ export function CarFiltersOverlay({
                         <Switch
                           trackColor={{ true: theme.accent }}
                           style={{ transform: [{ scale: 0.8 }] }}
-                          value={selectedFilters.includes(countryCode)}
-                          onValueChange={() => toggleFilter(countryCode)}
+                          value={selectedFilters.selectedCountry.includes(
+                            countryCode,
+                          )}
+                          onValueChange={() =>
+                            toggleFilter("selectedCountry", countryCode)
+                          }
                         />
                       </View>
                     ))}
@@ -197,8 +204,10 @@ export function CarFiltersOverlay({
                         <Switch
                           trackColor={{ true: theme.accent }}
                           style={{ transform: [{ scale: 0.8 }] }}
-                          value={selectedFilters.includes(type)}
-                          onValueChange={() => toggleFilter(type)}
+                          value={selectedFilters.selectedType.includes(type)}
+                          onValueChange={() =>
+                            toggleFilter("selectedType", type)
+                          }
                         />
                       </View>
                     ))}

@@ -21,17 +21,29 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions(); // Hook useWindowDimensions aplicado a constante width, que retorna a largura da tela
   const [isFilterOpen, setIsFilterOpen] = useState(false); // Constante com useState que determina os dados de filtro aberto e fechado
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]); // Constante com useState que determina os filtros selecionados
+  const [filters, setFilters] = useState<{
+    selectedBrand: string[];
+    selectedType: string[];
+    selectedCountry: string[];
+  }>({
+    selectedBrand: [],
+    selectedType: [],
+    selectedCountry: [],
+  });
   const theme = useTheme();
 
   // Função toggleFilter que alterna o estado dos filtros selecionados, com os states acima
-  function toggleFilter(filterName: string) {
+  function toggleFilter(category: keyof typeof filters, value: string) {
+    const list = filters[category];
     // Caso 1: detecta que o filtro já está selecionado, e retira ele
-    if (selectedFilters.includes(filterName)) {
-      setSelectedFilters(selectedFilters.filter((item) => item !== filterName));
+    if (list.includes(value)) {
+      setFilters({
+        ...filters,
+        [category]: list.filter((item) => item !== value),
+      });
       // Caso 2: detecta que o filtro não está selecionado, e adiciona ele
     } else {
-      setSelectedFilters([...selectedFilters, filterName]);
+      setFilters({ ...filters, [category]: [...list, value] });
     }
   }
 
@@ -48,7 +60,7 @@ export default function HomeScreen() {
   let cardWidth: number = (availableWidth - totalSpacing) / columns;
 
   // Variável que armazena os carros filtrados com base nos critérios selecionados na função lá em cima
-  const carsForShow = filterCars(carsMoch, { selectedFilters });
+  const carsForShow = filterCars(carsMoch, filters);
 
   // Renderiza a lista de carros filtrados com FlatList
   return (
@@ -59,7 +71,7 @@ export default function HomeScreen() {
         isOpen={isFilterOpen}
         onToggle={handleToggleFilter}
         toggleFilter={toggleFilter}
-        selectedFilters={selectedFilters}
+        selectedFilters={filters}
       />
       <FlatList
         // FlatList que renderiza os carros filtrados
