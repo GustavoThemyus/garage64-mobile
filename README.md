@@ -25,7 +25,7 @@ The behavioral spec lives in [`docs/spec.md`](docs/spec.md) and is the source of
 
 **Catalog.** A responsive grid of car cards. The column count adapts to screen width: 2, 3 or 4. Each card shows the image, model, brand, year, type and horsepower, plus a country flag badge.
 
-**Filters overlay.** A blurred panel over the catalog, with collapsible sections for brand, country and type. Selecting a filter updates the grid right away.
+**Filters overlay.** A blurred panel over the catalog, with collapsible sections for brand, country and type. Selecting a filter updates the grid right away. Values inside one category add up, and categories narrow each other: Nissan plus Toyota plus Sports Coupe shows the sports coupes of those two brands.
 
 **Car Detail.** Opens when you tap a card. Shows the model and the full factory spec sheet: 13 fields with readable labels, generated from the data instead of written by hand.
 
@@ -108,7 +108,9 @@ What that means in practice:
 
 ### Known limitations
 
-**Filters combine with OR across categories.** Selecting Nissan and Coupé returns every Nissan plus every coupé, instead of only Nissan coupés. How filters should combine, within one category and across categories, is not specified yet.
+**There is no way to clear all filters.** Every selection has to be toggled off by hand, one at a time.
+
+**The filter panel does not animate.** It uses `LayoutAnimation`, which does not work with the New Architecture, and this project has it enabled.
 
 **The light theme is a placeholder.** The token structure supports two themes, but the light values are a copy of the dark ones. There is no theme toggle yet, so this is not visible in the app.
 
