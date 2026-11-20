@@ -14,6 +14,9 @@ import { localCarsRepository } from "../src/data/carsRepository";
 import { createHttpAssistantService, AssistantUnavailableError, offlineAssistantService } from "../src/services/assistant";
 import { buildFromDraft } from "../src/storage/buildFromDraft";
 import { createMemoryBuildsRepository } from "../src/storage/buildsRepository";
+import { buildToRow, rowToBuild } from "../src/supabase/buildRows";
+import { BuildRow } from "../src/supabase/buildRows";
+import { BuildsTable, createRemoteBuildsRepository } from "../src/supabase/remoteBuildsRepository";
 import { parseBuilds } from "../src/storage/parseBuilds";
 import { Build, BuildDraft, PartField } from "../src/types/build";
 
@@ -313,8 +316,67 @@ async function checkAssistant() {
 }
 
 // main() porque o tsx compila como CommonJS, sem await no topo; uma rejeição sai com código 1.
+// repositório remoto: mapeamento linha <-> build, migração única do que estava no aparelho e erro de rede
+async function checkRemoteBuilds() {
+  const car = find(1);
+  const draft: BuildDraft = {
+    carId: car.info.id,
+    name: "Remote",
+    config: getFactoryConfig(car),
+    computed: car.performance,
+    warnings: [],
+  };
+  const build = buildFromDraft(draft);
+  const row = buildToRow(build, "user-1");
+
+  check("remoto: linha guarda dono e carro", row.user_id === "user-1" && row.car_id === 1);
+  check("remoto: linha volta a ser a mesma build", JSON.stringify(rowToBuild(row)) === JSON.stringify(build));
+  check("remoto: linha malformada vira null", rowToBuild({ ...row, config: null }) === null && rowToBuild(null) === null);
+
+  const rows: BuildRow[] = [];
+  const table: BuildsTable = {
+    select: async () => [...rows],
+    upsert: async (next) => {
+      const index = rows.findIndex((item) => item.id === next.id);
+      if (index >= 0) rows[index] = next;
+      else rows.push(next);
+    },
+    remove: async (id) => {
+      const index = rows.findIndex((item) => item.id === id);
+      if (index >= 0) rows.splice(index, 1);
+    },
+  };
+  let done = false;
+  const flag = { isDone: async () => done, markDone: async () => void (done = true) };
+  const legacyBuild = buildFromDraft({ ...draft, name: "Local" }, undefined, new Date("2020-01-01"), () => "legacy-1");
+  const legacy = createMemoryBuildsRepository([legacyBuild]);
+  const repo = createRemoteBuildsRepository({ table, getUserId: async () => "user-1", legacy, flag });
+
+  const first = await repo.list();
+  check("remoto: primeira leitura sobe as builds do aparelho", first.length === 1 && rows.length === 1 && done);
+  await legacy.save({ ...legacyBuild, id: "legacy-2" });
+  check("remoto: depois de migrar, não sobe de novo", (await repo.list()).length === 1 && rows.length === 1);
+
+  await repo.save(build);
+  await repo.save({ ...build, name: "Renamed" });
+  const listed = await repo.list();
+  check("remoto: save atualiza pelo id", listed.length === 2 && listed.some((item) => item.name === "Renamed"));
+  check("remoto: mais nova primeiro", listed[0].id === build.id);
+  await repo.remove(build.id);
+  check("remoto: remove apaga só o item", (await repo.list()).map((item) => item.id).join() === "legacy-1");
+
+  const broken = createRemoteBuildsRepository({
+    table: { ...table, select: async () => { throw new Error("network"); } },
+    getUserId: async () => "user-1",
+  });
+  let failed = false;
+  await broken.list().catch(() => { failed = true; });
+  check("remoto: falha de rede rejeita a promessa", failed);
+}
+
 async function main() {
   await checkRepositoryContract();
+  await checkRemoteBuilds();
   await checkCatalog();
   await checkAssistant();
 

@@ -11,6 +11,7 @@ import { useEffect, useMemo } from "react";
 import "react-native-reanimated";
 
 import { CarsProvider } from "@/src/data/CarsProvider";
+import { buildsRepository, carsRepository } from "@/src/data/repositories";
 import { BuildsProvider } from "@/src/storage/BuildsProvider";
 import { AppThemeProvider } from "@/src/theme/ThemeProvider";
 import { useThemeController } from "@/src/theme/useTheme";
@@ -37,8 +38,8 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   return (
     <AppThemeProvider>
-      <CarsProvider>
-        <BuildsProvider>
+      <CarsProvider repository={carsRepository}>
+        <BuildsProvider repository={buildsRepository}>
           <RootLayoutContent />
         </BuildsProvider>
       </CarsProvider>

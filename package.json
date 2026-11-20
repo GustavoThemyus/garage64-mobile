@@ -9,6 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "verify:engine": "tsx scripts/verify-engine.ts",
+    "seed:sql": "tsx scripts/generate-seed.ts > supabase/seed.sql",
     "build:web": "expo export -p web"
   },
   "dependencies": {
@@ -16,6 +17,7 @@
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/slider": "5.2.1",
     "@react-native-segmented-control/segmented-control": "2.5.7",
+    "@supabase/supabase-js": "^2.109.0",
     "expo": "^58.0.26",
     "expo-blur": "~58.0.6",
     "expo-constants": "~58.0.16",
