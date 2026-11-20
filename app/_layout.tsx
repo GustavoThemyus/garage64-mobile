@@ -9,6 +9,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect, useMemo } from "react";
 import "react-native-reanimated";
 
+import { BuildsProvider } from "@/src/storage/BuildsProvider";
 import { AppThemeProvider } from "@/src/theme/ThemeProvider";
 import { useThemeController } from "@/src/theme/useTheme";
 
@@ -28,7 +29,9 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   return (
     <AppThemeProvider>
-      <RootLayoutContent />
+      <BuildsProvider>
+        <RootLayoutContent />
+      </BuildsProvider>
     </AppThemeProvider>
   );
 }

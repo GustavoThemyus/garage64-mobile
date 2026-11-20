@@ -7,8 +7,10 @@ import { normalizeAspiration } from "../src/engine/aspiration";
 import { calculateBuild } from "../src/engine/calculate";
 import { compareCars } from "../src/engine/compare";
 import { getConfigRanges, getFactoryConfig } from "../src/engine/config";
+import { evaluateBuild } from "../src/engine/evaluate";
 import { validateBuild } from "../src/engine/validate";
-import { PartField } from "../src/types/build";
+import { parseBuilds } from "../src/storage/parseBuilds";
+import { Build, PartField } from "../src/types/build";
 
 let failures = 0;
 let checks = 0;
@@ -132,6 +134,25 @@ check(
   ab.every((r, i) => r.winner === "tie" || r.winner === (ba[i].winner === "a" ? "b" : "a")),
 );
 check("compare: one side always scores 1", ab.every((r) => Math.max(r.a.score, r.b.score) === 1));
+
+// 10. Ler builds salvas nunca quebra, mesmo com dado corrompido.
+const evaluated = evaluateBuild(civic, { ...civicFactory, aspiration: "twin-turbo" });
+const sample: Build = {
+  id: "abc123",
+  carId: civic.info.id,
+  name: "Weekend Civic",
+  config: { ...civicFactory, aspiration: "twin-turbo" },
+  computed: evaluated.performance,
+  warnings: evaluated.warnings,
+  createdAt: "2026-01-01T00:00:00.000Z",
+};
+check("storage: round trip keeps the build", JSON.stringify(parseBuilds(JSON.stringify([sample]))) === JSON.stringify([sample]));
+check("storage: null gives an empty list", parseBuilds(null).length === 0);
+check("storage: broken JSON gives an empty list", parseBuilds("{not json").length === 0);
+check("storage: non-array gives an empty list", parseBuilds('{"id":"x"}').length === 0);
+check("storage: drops only the invalid items", parseBuilds(JSON.stringify([sample, { id: 1 }, null, sample])).length === 2);
+check("storage: rejects an unknown aspiration", parseBuilds(JSON.stringify([{ ...sample, config: { ...sample.config, aspiration: "warp-drive" } }])).length === 0);
+check("storage: rejects a malformed result", parseBuilds(JSON.stringify([{ ...sample, computed: { hp: 1 } }])).length === 0);
 
 console.log(`${checks - failures}/${checks} checks passed`);
 if (failures > 0) {
