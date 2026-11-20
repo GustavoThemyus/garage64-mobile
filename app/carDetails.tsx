@@ -4,6 +4,7 @@ import CountryFlag from "react-native-country-flag";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Chip } from "@/src/components/detail/Chip";
+import { CompareSection } from "@/src/components/detail/CompareSection";
 import { InfoRow } from "@/src/components/detail/InfoRow";
 import { SectionCard } from "@/src/components/detail/SectionCard";
 import { StatTile } from "@/src/components/detail/StatTile";
@@ -139,6 +140,8 @@ export default function CarDetails() {
           ))}
         </View>
       </View>
+
+      <CompareSection car={car} />
     </ScrollView>
   );
 }
