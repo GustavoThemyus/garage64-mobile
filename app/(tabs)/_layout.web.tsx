@@ -28,9 +28,9 @@ export default function TabLayoutWeb() {
           backgroundColor: theme.surface,
           borderTopColor: theme.border,
           // altura explícita pra o rótulo não ser cortado; a folga de baixo é a barra do home indicator
-          height: 56 + insets.bottom,
-          paddingTop: 6,
-          paddingBottom: 6 + insets.bottom,
+          height: 72 + insets.bottom,
+          paddingTop: 8,
+          paddingBottom: 10 + insets.bottom,
         },
         tabBarLabelStyle: { fontSize: 12, lineHeight: 14 },
       }}
