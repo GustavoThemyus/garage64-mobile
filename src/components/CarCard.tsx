@@ -1,12 +1,9 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import CountryFlag from "react-native-country-flag";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
+import Animated from "react-native-reanimated";
 
 import { GlassSurface } from "@/src/components/GlassSurface";
+import { usePressScale } from "@/src/components/usePressScale";
 import { radius, spacing, typography } from "@/src/theme/tokens";
 import { useTheme } from "@/src/theme/useTheme";
 import { Car } from "../types/car";
@@ -19,11 +16,7 @@ interface CarCardProps {
 
 export default function CarCard({ car, onPress, cardWidth }: CarCardProps) {
   const theme = useTheme();
-  const scale = useSharedValue(1);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
+  const { animatedStyle, onPressIn, onPressOut } = usePressScale();
 
   return (
     <Animated.View
@@ -35,12 +28,8 @@ export default function CarCard({ car, onPress, cardWidth }: CarCardProps) {
     >
       <Pressable
         onPress={onPress}
-        onPressIn={() => {
-          scale.value = withSpring(0.97, { damping: 18, stiffness: 320 });
-        }}
-        onPressOut={() => {
-          scale.value = withSpring(1, { damping: 18, stiffness: 320 });
-        }}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
         accessibilityRole="button"
         accessibilityLabel={`${car.info.brand} ${car.info.model}`}
       >
