@@ -3,6 +3,7 @@ export const dictionary = {
     brand: "Brand",
     model: "Model",
     year: "Year",
+    decade: "Decade",
     color: "Color",
     countryCode: "Country",
     generation: "Generation",

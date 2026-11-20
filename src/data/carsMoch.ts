@@ -51,7 +51,7 @@ export const carsMoch: Car[] = [
         "The RB26 is known for its iron block strength and ability to handle extreme boost levels.",
       ],
       appearances: [
-        "2 Fast 2 Furious (Driven by Brian O'Conner.",
+        "2 Fast 2 Furious (driven by Brian O'Conner)",
         "Gran Turismo",
         "Need for Speed",
         "Forza",
