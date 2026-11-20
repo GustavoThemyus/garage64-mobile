@@ -96,7 +96,7 @@ O comportamento do app está especificado em `docs/spec.md`, em português. O pl
 
 **Serviços e configuração.** `src/services/assistant.ts` expõe uma interface: offline por padrão, e HTTP (`POST {EXPO_PUBLIC_API_URL}/api/assistant`) quando a variável existe. `src/config/env.ts` lê as variáveis `EXPO_PUBLIC_*` (públicas, nunca segredo; veja `.env.example`).
 
-**Deploy.** `app.json` (identificador provisório `com.gustavothemyus.garage64`), `eas.json` (perfil `preview` gera APK), `vercel.json` (`buildCommand`, `outputDirectory: dist` e a rewrite de página única), `public/` (manifesto e ícones do PWA).
+**Deploy.** `app.json` (identificador provisório `com.gustavothemyus.garage64`), `eas.json` (perfil `preview` gera APK), `vercel.json` (`buildCommand`, `outputDirectory: dist` e a rewrite de página única), `public/` (manifesto e ícones do PWA). O ícone do app (iOS, Android, web, splash) é o Mustang Shelby recortado sobre fundo preto (`assets/images/` e `public/`).
 
 ---
 
@@ -104,6 +104,7 @@ O comportamento do app está especificado em `docs/spec.md`, em português. O pl
 
 - **Frontend da v1 completo**, com as 4 tabs da spec: Catalog (grade, filtros), Car Detail (7 blocos), Compare, Build Configurator (controles, resultado em tempo real, avisos de compatibilidade), Builds (editar, renomear, excluir, filtrar), Settings (tema, sobre, links) e Assistant (tela de chat completa).
 - **Visual aprovado no iPhone** (Expo Go, SDK 58): tabs nativas, balão de filtro, cards com aro em degradê e seletor nativo de tema.
+- **Web:** o header é opaco e a tab bar tem altura e folga de baixo explícitas (`_layout.web.tsx`). Não foi conferido num celular.
 - **Tudo roda local.** Catálogo é o mock, builds ficam no aparelho, e o Assistant responde que está offline.
 - **Depende de backend e ainda não existe:** contas e armazenamento na nuvem (spec fase 2), cálculo no servidor (fase 3) e a resposta do Assistant (fase 4).
 - **Deploy:** a configuração está pronta (web na Vercel, APK pelo EAS). Falta criar as contas e fazer o primeiro deploy. Passos em `README.md` (Next steps) e `docs/deploy.md`.
