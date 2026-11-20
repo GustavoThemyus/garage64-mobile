@@ -1,19 +1,21 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { useFonts } from "expo-font";
+import { Stack } from "expo-router";
 import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
 } from "expo-router/react-navigation";
-import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useMemo } from "react";
 import "react-native-reanimated";
 
-import { useColorScheme } from "@/components/useColorScheme";
+import { AppThemeProvider } from "@/src/theme/ThemeProvider";
+import { useThemeController } from "@/src/theme/useTheme";
 
 export {
-  // Catch any errors thrown by the Layout component.
+  // Captura erros lançados dentro da árvore de navegação.
   ErrorBoundary,
 } from "expo-router";
 
@@ -22,54 +24,63 @@ export const unstable_settings = {
   anchor: "(tabs)",
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+// Segura a splash screen até as fontes carregarem.
 SplashScreen.preventAutoHideAsync();
 
-// Função do layout da aplicação. O layout é o componente raiz que engloba absolutamente todas as telas.
 export default function RootLayout() {
+  return (
+    <AppThemeProvider>
+      <RootLayoutContent />
+    </AppThemeProvider>
+  );
+}
+
+function RootLayoutContent() {
   const [loaded, error] = useFonts({
-    // useFonts é um hook que carrega as fontes necessáras para a aplicação, e tá sendo aplicando a constante de array loaded e error.
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     ...FontAwesome.font,
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
 
   useEffect(() => {
-    // De forma bem didática pra você jamais esquecer: useEffect é um hook que executa um efeito lateral quando uma ação é realizada (no caso, quando loaded muda).
-    // Quando loaded muda, o efeito é executado. Se loaded for true, a splash screen é escondida. A splash screen é uma tela de carregamento que aparece enquanto as fontes estão sendo carregadas.
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]); // O array vazio signicia que o efeito é executado apenas uma vez, quando o componente é montado. Nesse caso, como não está vazio, o efeito é executado sempre que loaded muda.
+    if (loaded) SplashScreen.hideAsync();
+  }, [loaded]);
 
-  // Quando loaded for false, o componente retorna null, e a splash screen é exibida.
-  if (!loaded) {
-    return null;
-  }
+  if (!loaded) return null;
 
   return <RootLayoutNav />;
 }
 
-// Essa é a função do layout de navegação, que basicamente define a estrutura de navegação da aplicação.
 function RootLayoutNav() {
-  // Define os temas escuro ou claro.
-  const colorScheme = useColorScheme(); // Define o esquema de cores com base no dispositivo. Esse hook foi aplicado a constante colorScheme.
+  const { scheme, colors } = useThemeController();
+
+  // O tema do React Navigation sai dos mesmos tokens do resto do app,
+  // então header, fundo e bordas nativos acompanham o tema escolhido.
+  const navigationTheme = useMemo(() => {
+    const base = scheme === "dark" ? DarkTheme : DefaultTheme;
+    return {
+      ...base,
+      colors: {
+        ...base.colors,
+        primary: colors.accentText,
+        background: colors.background,
+        card: colors.surface,
+        text: colors.textPrimary,
+        border: colors.border,
+        notification: colors.accent,
+      },
+    };
+  }, [scheme, colors]);
 
   return (
-    // Theme provider é um componente que envolve toda a aplicação e fornece o tema claro ou escuro para os componentes filhos.
-    // Se colorScheme for "dark", o DarkTheme vai ser fornecido. Se não, vai ser DefaultTheme.
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={navigationTheme}>
+      <StatusBar style={scheme === "dark" ? "light" : "dark"} />
       <Stack>
-        {/* Stack é um tipo de navegação, como uma pilha de telas. Quando abre uma, vai por cima da tela anterior. A anterior fica esperando. Se você clica em voltar, a tela anterior vai aparecer novamente. */}
-        {/* Stack.Screen define as telas da navegação. As primeira (tabs) é a tela principal, que mostra os carros disponíveis. */}
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        {/* O primeiro (tabs) é todo o sistema de abas, pois contém o layout das abas e as telas dentro delas. */}
         <Stack.Screen name="carDetails" options={{ title: "Details" }} />
-        {/* O carDetails é a tela de detalhes do carro, que mostra informações adicionais sobre o carro selecionado. */}
       </Stack>
     </ThemeProvider>
   );
