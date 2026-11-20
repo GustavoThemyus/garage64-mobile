@@ -54,15 +54,25 @@ O app roda na web (`npm run web`), então o link é um site estático.
 **Build e hospedagem**
 
 ```bash
-npx expo export -p web      # gera dist/
+npm run build:web           # gera dist/ (é o mesmo comando que a Vercel roda)
 npx expo serve              # conferir em http://localhost:8081 antes de publicar
 ```
 
-Hospedagem sugerida: **Vercel** (grátis). Segundo a doc do Expo:
+Hospedagem sugerida: **Vercel** (grátis). O `vercel.json` na raiz já define o comando de build (`npm run build:web`), a pasta de saída (`dist`) e uma rewrite de `/:path*` para `/`. A rewrite existe porque `single` é uma página só: sem ela, abrir `/builds` direto dá 404.
 
-- `vercel.json` na raiz (já criado): `outputDirectory` é `dist` e há uma rewrite de `/:path*` para `/`.
-- Comando de build na Vercel: `npx expo export -p web`.
-- A rewrite existe porque `single` é uma página só: sem ela, abrir `/builds` direto dá 404.
+**Configuração do projeto na Vercel (Import Project)**
+
+| Campo | Valor | Por quê |
+| --- | --- | --- |
+| Root Directory | padrão (a raiz do repositório) | o app está na raiz, não é monorepo |
+| Framework Preset | **Other** | o Expo não está na lista de presets |
+| Build Command | padrão do painel, o `vercel.json` sobrescreve | `buildCommand` no `vercel.json` vale |
+| Output Directory | padrão do painel, o `vercel.json` sobrescreve | com "Other" o padrão seria `public`, mas o `outputDirectory: "dist"` do `vercel.json` vale |
+| Install Command | padrão (`npm install`) | há `package-lock.json` |
+| Node.js Version | não mexer: o `package.json` fixa `"engines": { "node": "22.x" }` | o padrão da Vercel é o Node 26, e o SDK 58 foi verificado com 22.13 ou mais novo |
+| Environment Variables | nenhuma por enquanto | o app roda local; entram `EXPO_PUBLIC_*` nas etapas D e E |
+
+Detalhes que a documentação da Vercel não confirma e valem uma olhada no primeiro deploy: o `engines.node` com `22.x` é honrado (a documentação cita `22.x`, mas não diz que 22.x é 22.13 ou mais novo, então confira a linha do Node no log do build), e a precedência exata do `vercel.json` sobre os campos do painel é só implícita na documentação.
 
 Alternativas documentadas pelo Expo: Netlify (`public/_redirects` com `/*    /index.html   200`), Firebase Hosting, AWS Amplify, GitHub Pages e a hospedagem do próprio Expo. Cloudflare Pages não aparece na doc do Expo, então não está verificado.
 

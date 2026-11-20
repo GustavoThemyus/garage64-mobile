@@ -120,7 +120,7 @@ There is no test runner and no linter. `verify:engine` covers the calculation, t
 
 In the order I plan to do them. Each step is detailed in [`docs/deploy.md`](docs/deploy.md).
 
-1. **Put the web build online.** Create the Vercel project from this repository. The export, the single page rewrite and the PWA files are already set up, so this only needs the account.
+1. **Put the web build online.** Create the Vercel project from this repository and leave every setting at its default except Framework Preset, which is `Other`. The build command, the output folder, the single page rewrite, the PWA files and the Node version are already set up in the repository, so this only needs the account.
 2. **Build the Android APK** with `eas build -p android --profile preview` and share the install link. Confirm the app identifier `com.gustavothemyus.garage64` first, because it cannot change after publishing.
 3. **Add continuous integration:** type check, `expo-doctor` and `verify:engine` on every pull request.
 4. **Supabase (spec phase 2).** Write a `CarsRepository` and a `BuildsRepository` backed by the database, with anonymous auth. No screen needs to change.
