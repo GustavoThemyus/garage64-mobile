@@ -1,11 +1,11 @@
 # Garage64 Mobile
 
-A car catalog and build configurator for enthusiasts: JDM, muscle, classics, track and street. You browse a catalog, open a full spec sheet, tune a build and watch the numbers recalculate, then save it.
+A car catalog and build configurator for enthusiasts: JDM, muscle, classics, track and street. You browse a catalog, open a full spec sheet, compare two cars, tune a build and watch the numbers recalculate, then save it.
 
 Built with React Native and Expo, in TypeScript.
 
-> **Status: paused, maintenance only.**
-> Development is on hold for other priorities. The app runs, but it covers a small part of the planned product. See [Project status](#project-status) for details.
+> **Status: the v1 frontend is complete. The backend is planned and not started.**
+> Everything runs on the device with a local mock catalog. Accounts, cloud storage, server side calculation and the assistant's answers need a backend. The plan is in [`docs/deploy.md`](docs/deploy.md).
 
 ---
 
@@ -23,24 +23,25 @@ The behavioral spec lives in [`docs/spec.md`](docs/spec.md) and is the source of
 
 ## What works today
 
-**Catalog.** A responsive grid of car cards. The column count adapts to screen width: 2, 3 or 4. Each card shows the image, model, brand, year, type and horsepower, plus a country flag badge.
+**Catalog.** A responsive grid of car cards with a press animation. The column count adapts to screen width: 2, 3 or 4. A button in the header opens a filter panel for brand, country and type. Values inside one category add up and categories narrow each other, so Nissan plus Toyota plus Sports Coupe shows the sports coupes of those two brands. "Clear all" resets it.
 
-**Filters overlay.** A blurred panel over the catalog, with collapsible sections for brand, country and type. Selecting a filter updates the grid right away. Values inside one category add up, and categories narrow each other: Nissan plus Toyota plus Sports Coupe shows the sports coupes of those two brands.
+**Car Detail.** Hero image, identification, type, performance tiles, the full factory spec sheet, curiosities and media appearances. Fields come from the data and are formatted by what they mean: weight is kilograms and pounds, torque is a value at an RPM.
 
-**Car Detail.** Opens when you tap a card. Shows the model and the full factory spec sheet: 13 fields with readable labels, generated from the data instead of written by hand.
+**Compare.** Pick another car and see bars for power, torque, top speed, acceleration, consumption and weight. The better car fills the bar in green. The other car is green up to its own level and red up to the other car's level.
 
-**Central color theme.** Every color comes from one token set. Components hold no hardcoded colors.
+**Build Configurator.** Sliders for displacement and valves, native switches for all-wheel drive and nitrous, and single choice lists for aspiration, transmission, wheels, brakes and steering. Every control starts at the factory value. Power, torque, top speed, acceleration and consumption recalculate on every change, with the difference against factory. If the car's own rules reject a choice, the build shows a warning with the reason and can still be saved.
 
-## What does not exist yet
+**Builds.** Saved builds in one-per-row cards, stored on the device. Tap to edit, rename, delete, and filter by base car, brand, power range and compatibility.
 
-The spec describes four bottom tabs. One of them is implemented.
+**Settings.** System, Light or Dark theme, project and author info, and links.
 
-- **Build Configurator.** Sliders, toggles and single choice controls, with live recalculation of horsepower, torque, top speed, acceleration and consumption, plus compatibility warnings per car.
-- **Builds tab.** Saved builds, with filtering and renaming.
-- **Settings tab.** Light and dark toggle, project and author info.
-- **Assistant tab.** Out of scope for v1.
-- **Car Detail, remaining blocks.** Image, identification, type, performance, trivia and media appearances. Only the specs block is done.
-- **Compare.** Side by side comparison bars between two cars.
+**Assistant.** The full chat screen. It talks to a service that is switched off for now, so it answers that it is offline. Plugging in the backend later only changes `src/services/assistant.ts`.
+
+**Theme.** Every color comes from one token set with a real light and dark palette. Components hold no hardcoded colors.
+
+### iOS look
+
+On iOS 26 and later the app uses the system Liquid Glass: the floating tab bar, the header buttons, and the cards and panels. Android, web, older iOS and the "Reduce Transparency" setting fall back to solid themed surfaces. The shape of the tab bar and its selection capsule are drawn by iOS and cannot be customized.
 
 ---
 
@@ -48,33 +49,42 @@ The spec describes four bottom tabs. One of them is implemented.
 
 | Layer | Choice |
 | --- | --- |
-| App | React Native `0.81.5`, Expo SDK `54` |
-| Language | TypeScript, `strict` |
-| Routing | `expo-router` v6, file based, typed routes |
-| Data | Local mock file, 14 cars, read only |
-| Styling | `StyleSheet` plus a central theme module |
-
-There is no backend yet. Persistence, authentication and moving the catalog to a database are later phases, described in the spec.
+| App | React Native `0.88`, React `19.3`, Expo SDK `58` |
+| Language | TypeScript `6`, `strict` |
+| Routing | `expo-router` `58`, file based, typed routes, native tabs |
+| Data | Local mock, 14 cars, read only |
+| Storage | AsyncStorage (builds, theme preference) |
+| Styling | `StyleSheet`, a central theme module, Reanimated for motion |
 
 ### Project structure
 
 ```
-app/                 routes (expo-router)
-  (tabs)/            bottom tabs, currently Catalog
-  carDetails.tsx     car detail screen
+app/                       routes (expo-router)
+  (tabs)/                  native bottom tabs
+    (catalog) (builds) (assistant) (settings)   one Stack per tab
+  carDetails.tsx           car detail
+  configurator.tsx         build configurator
 src/
-  components/        CarCard, CarFiltersOverlay
-  data/              car mock, filtering, label dictionary
-  theme/             color tokens and the useTheme hook
-  types/             the Car model
-docs/spec.md         behavioral spec (Portuguese)
+  components/              shared UI, plus detail/, configurator/ and chat/
+  data/                    car mock, parts catalog, formatters, labels
+  engine/                  calculation, compatibility rules, comparison, filters
+  storage/                 builds persistence
+  services/                assistant service (offline for now)
+  theme/                   color tokens, spacing, typography, theme provider
+  types/                   Car and Build models
+scripts/verify-engine.ts   checks for the engine, filters and storage
+docs/                      spec (Portuguese) and deployment plan
 ```
 
-The `Car` model is nested in five groups: `info`, `specs`, `performance`, `rules` and `history`. Every field is read through its group, for example `car.specs.engine`.
+The `Car` model is nested in five groups: `info`, `specs`, `performance`, `rules` and `history`. Every field is read through its group, for example `car.specs.engine`. A `Build` references its car by id and never copies it.
+
+The calculation is a simple model of my own, not real performance data. Every formula is a ratio against the factory configuration, so the factory build reproduces the mock exactly. The coefficients are written in section 5.5 of the spec.
 
 ---
 
 ## Running it
+
+You need Node 22.13 or newer.
 
 ```bash
 npm install
@@ -84,39 +94,33 @@ npm run android    # open on Android
 npm run ios        # open on iOS
 ```
 
-Type checking:
+Open the QR code with Expo Go from the app store. This project targets Expo SDK 58, which is what the store version of Expo Go runs. Expo Go only supports the latest SDK, so when a newer SDK ships and Expo Go updates, the project has to be upgraded to keep opening there.
+
+Checks:
 
 ```bash
-npx tsc --noEmit
+npx tsc --noEmit        # types
+npx expo-doctor         # project configuration
+npm run verify:engine   # engine, filters and storage
 ```
 
-There is no test runner and no linter configured. Type checking is the only automated verification.
-
-> **Expo Go version note.** This project targets Expo SDK 54. Expo Go on the app stores only supports the latest SDK, so a current Expo Go install will refuse to open the project. Until the SDK is upgraded, use `npm run web`, an emulator, or a development build.
+There is no test runner and no linter. `verify:engine` covers the calculation, the filters and the storage parsing against the 14 mock cars. The screens themselves are checked by hand.
 
 ---
 
-## Project status
+## Known limitations
 
-Paused for other priorities. Maintenance only.
+**The calculation is simulated.** It is a plain model, not measurements. It is easy to tune, but the numbers are not real.
 
-What that means in practice:
+**Builds live on one device.** They are stored in AsyncStorage, so clearing the app or browser data deletes them, and they do not sync between devices.
 
-- No new features while the project is paused.
-- Bug fixes, dependency bumps and documentation updates may still land.
-- Issues and pull requests can take a long time to get an answer.
+**The Assistant answers nothing yet.** The interface is done and the service is switched off.
 
-### Known limitations
+**Car images come from third party URLs.** They are not cached, can disappear, and are not covered by the license.
 
-**There is no way to clear all filters.** Every selection has to be toggled off by hand, one at a time.
+**One data contradiction.** Every car has `canChangeTraction` set to false, but the Supra allows all-wheel drive. Turning it on shows the stricter warning. It is listed in the spec so the data can be fixed.
 
-**The filter panel does not animate.** It uses `LayoutAnimation`, which does not work with the New Architecture, and this project has it enabled.
-
-**The light theme is a placeholder.** The token structure supports two themes, but the light values are a copy of the dark ones. There is no theme toggle yet, so this is not visible in the app.
-
-**The catalog filter is not in the spec.** It exists in code with no written behavior.
-
-**Weight, torque and top speed are arrays of two numbers.** Weight and top speed hold one quantity in two units. Torque holds a value and the RPM where it peaks. The three look alike in the data and need different formatting.
+**The web build has no Liquid Glass.** It uses classic tabs and solid surfaces.
 
 ---
 
