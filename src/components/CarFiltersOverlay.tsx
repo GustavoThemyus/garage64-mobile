@@ -1,307 +1,165 @@
-import { AntDesign } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
-import { useState } from "react";
-import { useTheme } from "../theme/useTheme";
-import {
-  LayoutAnimation,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TouchableOpacity,
-  UIManager,
-  View,
-} from "react-native";
+import { useMemo } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+
+import { FilterSection } from "@/src/components/FilterSection";
+import { GlassSurface } from "@/src/components/GlassSurface";
 import { carsMoch } from "../data/carsMoch";
 import { FilterCriteria } from "../data/filterCars";
-
-if (
-  Platform.OS === "android" &&
-  UIManager.setLayoutAnimationEnabledExperimental
-) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
+import { getFilterOptions } from "../data/filterOptions";
+import { radius, spacing, typography } from "@/src/theme/tokens";
+import { useTheme } from "@/src/theme/useTheme";
 
 type Props = {
   isOpen: boolean;
-  onToggle: () => void;
+  onClose: () => void;
+  onClear: () => void;
   toggleFilter: (category: keyof FilterCriteria, value: string) => void;
   selectedFilters: FilterCriteria;
+  resultCount: number;
 };
 
+// Painel de filtros sobre o catálogo. É aberto pelo botão do header, fecha tocando
+// fora ou em "Show N cars". Fica montado sempre pra a saída poder animar.
 export function CarFiltersOverlay({
   isOpen,
-  onToggle,
-  selectedFilters,
+  onClose,
+  onClear,
   toggleFilter,
+  selectedFilters,
+  resultCount,
 }: Props) {
   const theme = useTheme();
-  const itemsFilterColor = theme.textPrimary;
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const options = useMemo(() => getFilterOptions(carsMoch), []);
 
-  // O botão que abre o painel vive no header (Stack.Toolbar); fechado, não renderiza nada.
+  const hasSelection =
+    selectedFilters.selectedBrand.length > 0 ||
+    selectedFilters.selectedCountry.length > 0 ||
+    selectedFilters.selectedType.length > 0;
+
   if (!isOpen) return null;
-
-  function handleToggleMenu() {
-    onToggle(); // Chama a função que avisa a Home para abrir/fechar
-  }
-
-  function handleSectionToggle(section: string) {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setExpandedSection(expandedSection === section ? null : section);
-  }
-
-  const allBrands = carsMoch.map((item) => item.info.brand);
-  const uniqueBrands = Array.from(new Set(allBrands));
-
-  const allCountries = carsMoch.map((item) => item.info.countryCode);
-  const uniqueCountries = Array.from(new Set(allCountries));
-
-  const allTypes = carsMoch.map((item) => item.specs.type);
-  const uniqueTypes = Array.from(new Set(allTypes));
 
   return (
     <>
-      <View style={styles.root}>
-        <View
-          style={[
-            styles.cardContainer,
-            { backgroundColor: theme.background, borderColor: theme.border },
-            isOpen && styles.cardOpen,
-          ]}
-        >
-          <BlurView intensity={70} tint="dark" style={styles.blur} />
+      <Pressable
+        style={styles.backdrop}
+        onPress={onClose}
+        accessibilityLabel="Close filters"
+      />
 
-          <View style={styles.content}>
-            <TouchableOpacity onPress={handleToggleMenu} style={styles.button}>
-              <AntDesign name="menu-fold" size={22} color={theme.textPrimary} />
-            </TouchableOpacity>
+      <Animated.View
+        entering={FadeIn.duration(160)}
+        exiting={FadeOut.duration(120)}
+        style={[styles.shadow, { shadowColor: theme.shadow }]}
+      >
+        <GlassSurface style={styles.panel}>
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={styles.scrollContent}
+            bounces={false}
+          >
+            <FilterSection
+              title="Brand"
+              options={options.brands}
+              selected={selectedFilters.selectedBrand}
+              onToggle={(value) => toggleFilter("selectedBrand", value)}
+            />
+            <FilterSection
+              title="Country"
+              options={options.countries}
+              selected={selectedFilters.selectedCountry}
+              onToggle={(value) => toggleFilter("selectedCountry", value)}
+            />
+            <FilterSection
+              title="Type"
+              options={options.types}
+              selected={selectedFilters.selectedType}
+              onToggle={(value) => toggleFilter("selectedType", value)}
+            />
+          </ScrollView>
 
-            {isOpen && (
-              <ScrollView style={styles.panel}>
-                <TouchableOpacity
-                  style={styles.filterCategoryButton}
-                  onPress={() => handleSectionToggle("brand")}
-                >
-                  <Text
-                    style={[styles.categoryText, { color: itemsFilterColor }]}
-                  >
-                    Brand
-                  </Text>
-                  <AntDesign
-                    name={expandedSection === "brand" ? "down" : "right"}
-                    size={12}
-                    color={theme.textPrimary}
-                  />
-                </TouchableOpacity>
+          <View style={styles.footer}>
+            <Pressable
+              onPress={onClear}
+              disabled={!hasSelection}
+              accessibilityRole="button"
+              accessibilityLabel="Clear all filters"
+              style={{ opacity: hasSelection ? 1 : 0.4 }}
+            >
+              <Text style={[styles.clearText, { color: theme.accentText }]}>
+                Clear all
+              </Text>
+            </Pressable>
 
-                <View
-                  style={[
-                    styles.separatorLine,
-                    { backgroundColor: theme.separator },
-                  ]}
-                />
-
-                {expandedSection === "brand" && (
-                  <View style={styles.expandedContent}>
-                    {uniqueBrands.map((brand) => (
-                      <View key={brand} style={styles.filterItemRow}>
-                        <Text
-                          style={[styles.itemText, { color: itemsFilterColor }]}
-                        >
-                          {brand}
-                        </Text>
-                        <Switch
-                          trackColor={{ true: theme.accent }}
-                          style={{ transform: [{ scale: 0.8 }] }}
-                          value={selectedFilters.selectedBrand.includes(brand)}
-                          onValueChange={() =>
-                            toggleFilter("selectedBrand", brand)
-                          }
-                        />
-                      </View>
-                    ))}
-                  </View>
-                )}
-
-                <TouchableOpacity
-                  style={styles.filterCategoryButton}
-                  onPress={() => handleSectionToggle("countryCode")}
-                >
-                  <Text
-                    style={[styles.categoryText, { color: itemsFilterColor }]}
-                  >
-                    Country
-                  </Text>
-                  <AntDesign
-                    name={expandedSection === "countryCode" ? "down" : "right"}
-                    size={12}
-                    color={theme.textPrimary}
-                  />
-                </TouchableOpacity>
-
-                <View
-                  style={
-                    [styles.separatorLine, { backgroundColor: theme.separator }]
-                  }
-                />
-
-                {expandedSection === "countryCode" && (
-                  <View style={styles.expandedContent}>
-                    {uniqueCountries.map((countryCode) => (
-                      <View key={countryCode} style={styles.filterItemRow}>
-                        <Text
-                          style={[styles.itemText, { color: itemsFilterColor }]}
-                        >
-                          {countryCode}
-                        </Text>
-                        <Switch
-                          trackColor={{ true: theme.accent }}
-                          style={{ transform: [{ scale: 0.8 }] }}
-                          value={selectedFilters.selectedCountry.includes(
-                            countryCode,
-                          )}
-                          onValueChange={() =>
-                            toggleFilter("selectedCountry", countryCode)
-                          }
-                        />
-                      </View>
-                    ))}
-                  </View>
-                )}
-
-                <TouchableOpacity
-                  style={styles.filterCategoryButton}
-                  onPress={() => handleSectionToggle("type")}
-                >
-                  <Text
-                    style={[styles.categoryText, { color: itemsFilterColor }]}
-                  >
-                    Type
-                  </Text>
-                  <AntDesign
-                    name={expandedSection === "type" ? "down" : "right"}
-                    size={12}
-                    color={theme.textPrimary}
-                  />
-                </TouchableOpacity>
-
-                <View
-                  style={[
-                    styles.separatorLine,
-                    { backgroundColor: theme.separator },
-                  ]}
-                />
-
-                {expandedSection === "type" && (
-                  <View style={styles.expandedContent}>
-                    {uniqueTypes.map((type) => (
-                      <View key={type} style={styles.filterItemRow}>
-                        <Text
-                          style={[styles.itemText, { color: itemsFilterColor }]}
-                        >
-                          {type}
-                        </Text>
-                        <Switch
-                          trackColor={{ true: theme.accent }}
-                          style={{ transform: [{ scale: 0.8 }] }}
-                          value={selectedFilters.selectedType.includes(type)}
-                          onValueChange={() =>
-                            toggleFilter("selectedType", type)
-                          }
-                        />
-                      </View>
-                    ))}
-                  </View>
-                )}
-              </ScrollView>
-            )}
+            <Pressable
+              onPress={onClose}
+              accessibilityRole="button"
+              style={[styles.doneButton, { backgroundColor: theme.accent }]}
+            >
+              <Text style={[styles.doneText, { color: theme.onAccent }]}>
+                {resultCount === 1 ? "Show 1 car" : `Show ${resultCount} cars`}
+              </Text>
+            </Pressable>
           </View>
-        </View>
-      </View>
-
-      {isOpen === true && (
-        <Pressable style={styles.backdrop} onPress={handleToggleMenu} />
-      )}
+        </GlassSurface>
+      </Animated.View>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    position: "absolute",
-    top: 10,
-    left: 16,
-    zIndex: 100,
-  },
-
-  cardContainer: {
-    borderRadius: 12,
-    overflow: "hidden",
-    borderWidth: 1,
-  },
-
-  cardOpen: {
-    width: 260,
-    height: 320,
-  },
-
-  blur: {
-    ...StyleSheet.absoluteFill,
-  },
-
-  content: {
-    flex: 1,
-  },
-
-  button: {
-    padding: 10,
-    alignSelf: "flex-start",
-  },
-
-  panel: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-
-  filterCategoryButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-
-  categoryText: {
-    padding: 8,
-    fontSize: 20,
-    fontWeight: 500,
-  },
-
-  itemText: {
-    padding: 8,
-    fontSize: 18,
-  },
-
-  expandedContent: {
-    paddingHorizontal: 12,
-  },
-
-  filterItemRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 5,
-  },
-
-  separatorLine: {
-    height: 1,
-    marginVertical: 10,
-    opacity: 0.4,
-  },
-
   backdrop: {
-    zIndex: 90,
     ...StyleSheet.absoluteFill,
+    zIndex: 90,
+  },
+  shadow: {
+    position: "absolute",
+    top: spacing.sm,
+    right: spacing.lg,
+    left: spacing.lg,
+    maxWidth: 360,
+    maxHeight: "78%",
+    alignSelf: "flex-end",
+    zIndex: 100,
+    borderRadius: radius.lg,
+    borderCurve: "continuous",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 12,
+  },
+  panel: {
+    borderRadius: radius.lg,
+    borderCurve: "continuous",
+    overflow: "hidden",
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.md,
+    flexShrink: 1,
+  },
+  scroll: {
+    flexGrow: 0,
+  },
+  scrollContent: {
+    paddingBottom: spacing.sm,
+  },
+  footer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing.md,
+    paddingTop: spacing.sm,
+  },
+  clearText: {
+    ...typography.headline,
+  },
+  doneButton: {
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  doneText: {
+    ...typography.headline,
+    fontSize: 15,
   },
 });

@@ -40,6 +40,10 @@ export default function CatalogScreen() {
     setFilters({ ...filters, [category]: next });
   }
 
+  function clearFilters() {
+    setFilters(EMPTY_FILTERS);
+  }
+
   function toggleFilterPanel() {
     setIsFilterOpen((open) => !open);
   }
@@ -109,9 +113,11 @@ export default function CatalogScreen() {
 
       <CarFiltersOverlay
         isOpen={isFilterOpen}
-        onToggle={toggleFilterPanel}
+        onClose={() => setIsFilterOpen(false)}
+        onClear={clearFilters}
         toggleFilter={toggleFilter}
         selectedFilters={filters}
+        resultCount={carsForShow.length}
       />
     </View>
   );
