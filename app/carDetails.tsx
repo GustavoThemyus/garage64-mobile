@@ -1,8 +1,9 @@
-import { Stack, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import CountryFlag from "react-native-country-flag";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { ActionButton } from "@/src/components/ActionButton";
 import { Chip } from "@/src/components/detail/Chip";
 import { CompareSection } from "@/src/components/detail/CompareSection";
 import { InfoRow } from "@/src/components/detail/InfoRow";
@@ -39,7 +40,7 @@ export default function CarDetails() {
   }
 
   const identification = getIdentificationRows(car);
-  const stats = getPerformanceStats(car);
+  const stats = getPerformanceStats(car.performance);
   const specs = getSpecRows(car);
 
   return (
@@ -141,7 +142,18 @@ export default function CarDetails() {
         </View>
       </View>
 
-      <CompareSection car={car} />
+      <View style={styles.actions}>
+        <ActionButton
+          label="Create build"
+          onPress={() =>
+            router.push({
+              pathname: "/configurator",
+              params: { carId: car.info.id },
+            })
+          }
+        />
+        <CompareSection car={car} />
+      </View>
     </ScrollView>
   );
 }
@@ -182,6 +194,9 @@ const styles = StyleSheet.create({
   tiles: {
     flexDirection: "row",
     flexWrap: "wrap",
+    gap: spacing.md,
+  },
+  actions: {
     gap: spacing.md,
   },
   curiosity: {

@@ -60,8 +60,10 @@ export function getIdentificationRows(car: Car): DetailRow[] {
 
 // Torque guarda [Nm, rpm]: duas grandezas diferentes (o valor e a rotação onde
 // ele acontece). Já topSpeed guarda [km/h, mph]: a mesma velocidade em duas unidades.
-export function getPerformanceStats(car: Car): PerformanceStat[] {
-  const { hp, torque, topSpeed, acceleration, consumption } = car.performance;
+export function getPerformanceStats(
+  performance: Car["performance"],
+): PerformanceStat[] {
+  const { hp, torque, topSpeed, acceleration, consumption } = performance;
   const label = dictionary.performance;
 
   return [
