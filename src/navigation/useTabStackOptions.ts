@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import type { NativeStackNavigationOptions } from "expo-router/native-stack";
 
 import { useTheme } from "@/src/theme/useTheme";
@@ -8,7 +9,12 @@ export function useTabStackOptions(): NativeStackNavigationOptions {
   const theme = useTheme();
 
   return {
-    headerLargeTitle: true,
+    headerLargeTitle: Platform.OS === "ios",
+    // na web não existe título grande nem vidro do sistema: header opaco, na cor do tema
+    ...(Platform.OS === "web" && {
+      headerTransparent: false,
+      headerStyle: { backgroundColor: theme.background },
+    }),
     headerTintColor: theme.accentText,
     headerTitleStyle: { color: theme.textPrimary },
     headerLargeTitleStyle: { color: theme.textPrimary },

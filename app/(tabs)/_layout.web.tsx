@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import type { ColorValue } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useTheme } from "@/src/theme/useTheme";
 
@@ -15,6 +16,7 @@ function tabIcon(name: IconName) {
 // O NativeTabs cai num fallback simples na web.
 export default function TabLayoutWeb() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -25,7 +27,12 @@ export default function TabLayoutWeb() {
         tabBarStyle: {
           backgroundColor: theme.surface,
           borderTopColor: theme.border,
+          // altura explícita pra o rótulo não ser cortado; a folga de baixo é a barra do home indicator
+          height: 56 + insets.bottom,
+          paddingTop: 6,
+          paddingBottom: 6 + insets.bottom,
         },
+        tabBarLabelStyle: { fontSize: 12, lineHeight: 14 },
       }}
     >
       <Tabs.Screen
