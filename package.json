@@ -8,7 +8,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "verify:engine": "tsx scripts/verify-engine.ts"
+    "verify:engine": "tsx scripts/verify-engine.ts",
+    "build:web": "expo export -p web"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -41,5 +42,8 @@
     "tsx": "^4.23.15",
     "typescript": "~6.0.3"
   },
-  "private": true
+  "private": true,
+  "engines": {
+    "node": "22.x"
+  }
 }
