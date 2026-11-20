@@ -35,13 +35,15 @@ O usuário navega por um catálogo, abre a ficha completa de um carro, monta bui
 
 1. **Catalog**
 2. **Builds**
-3. **Assistant** _(fora da v1)_
+3. **Assistant** _(interface pronta, resposta depende do backend)_
 4. **Settings**
 
-**Telas fora das tabs:**
+No iOS e no Android a barra de tabs é a **nativa do sistema** (no iOS 26+, a barra flutuante de vidro). Cada tab tem o próprio Stack, que dá o header com título grande. A web usa uma barra de tabs clássica, ver seção 9.
 
-- **Car Detail** — sobrepõe a tela de Catalog (modal ou stack por cima). Não é tab.
-- **Build Configurator** — acessado de dentro do Car Detail.
+**Telas fora das tabs** (empilhadas por cima, escondendo a tab bar):
+
+- **Car Detail** — Stack por cima do Catalog. Não é tab.
+- **Build Configurator** — acessado de dentro do Car Detail ("Create build") ou da tab Builds (editar uma build salva).
 
 ---
 
@@ -62,6 +64,18 @@ Cada card exibe:
 
 Toque no card → abre **Car Detail**.
 
+### 4.1.1 Filtros
+
+Botão de filtro no header do Catalog abre um painel por cima da lista, com três categorias: **marca**, **país** e **tipo**. As opções saem do próprio catálogo, então um carro novo aparece nos filtros sozinho. O país é mostrado pelo nome (Japan), não pelo código (JP).
+
+**Regra de combinação:**
+
+- **Dentro de uma categoria é OU.** Marcar Nissan e Toyota mostra os carros das duas marcas.
+- **Entre categorias é E.** Marcar Nissan, Toyota e Sports Coupe mostra só os Sports Coupe dessas duas marcas.
+- **Categoria sem nada marcado não filtra.** Sem nenhum filtro, aparecem todos os carros.
+
+O painel fecha tocando fora ou em "Show N cars". "Clear all" desmarca tudo.
+
 ### 4.2 Car Detail
 
 Tela sobreposta ao Catalog. Exibe **todos** os dados do carro presentes no mock:
@@ -74,9 +88,15 @@ Tela sobreposta ao Catalog. Exibe **todos** os dados do carro presentes no mock:
 - Curiosidades — `history.curiosities`
 - Aparições em mídia — `history.appearances`
 
-A "década" não é campo armazenado: deriva de `info.year`. O país é armazenado como código ISO de duas letras (`info.countryCode`, ex.: `"JP"`); exibir o nome por extenso exige uma tabela de tradução própria.
+A "década" não é campo armazenado: deriva de `info.year`. O país é armazenado como código ISO de duas letras (`info.countryCode`, ex.: `"JP"`); o nome por extenso vem da tabela `src/data/countries.ts`.
 
-Ao final da tela: botão **"Create build"** e **"Compare"**. O comparador ainda permanece nessa tela e ficará abaixo do botão de Create build. Ao clicar em compare, o comparador se expande pra baixo. Surge um botão de "choose car" que o usuário pode clicar para selecionar um carro para comparar. Assim que clica, o carro aparece com a comparação em barras com os dois. Um ponteiro em cada barra indica a diferença entre os dois carros, com uma cor verde pro que for mais positivo naquela característica e uma cor vermelha pro que for mais negativo. O indicador fica no máximo do positivo, e a parte vermelho no carro que for pior, fica vermelho da parte que ele está até o teto que o outro ocupa.
+**Formatação dos campos de dois números.** `weight` e `topSpeed` guardam a mesma grandeza em duas unidades ([kg, lb] e [km/h, mph]) e aparecem como `1560 kg / 3395 lb`. `torque` guarda duas grandezas diferentes, o valor e a rotação onde ele acontece ([Nm, RPM]), e aparece como `392 Nm at 4400 rpm`. Motor rotativo (`valves: 0`) mostra "None (rotary)".
+
+Ao final da tela: botão **"Create build"** e **"Compare"**. O comparador permanece nessa tela, abaixo do botão de Create build. Ao clicar em Compare, o comparador se expande pra baixo e surge um botão "Choose car", que abre uma lista com os outros carros. Escolhido o carro, aparece a comparação em barras com os dois.
+
+**Métricas comparadas** e o que conta como melhor: hp, torque, top speed e consumption (km/L), **maior é melhor**; acceleration (0 a 100 km/h) e weight, **menor é melhor**.
+
+**Barras.** Cada carro tem uma barra por métrica. O comprimento verde é o score do carro, onde 1 é o melhor dos dois (para "menor é melhor", o score é o menor valor dividido pelo valor do carro). O carro melhor fica com a barra verde cheia; o carro pior tem verde até o seu score e **vermelho do seu score até o teto do outro**. Um ponteiro marca o fim do verde de cada barra. Ao lado do nome da métrica aparece quem ganhou e por quantos % (diferença em relação ao maior valor).
 
 ---
 
@@ -92,11 +112,15 @@ Todo controle **inicia no valor padrão do carro**, vindo do mock.
 
 | Tipo de controle           | Aplicado a                                                                                       | Comportamento                                                                                       |
 | -------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
-| **Slider**                 | Specs numéricas ajustáveis: `specs.displacement`, `specs.valves`                                 | Faixa contínua ou por passos, começando no valor de fábrica                                         |
-| **Toggle (Switch nativo)** | Opções binárias da build (ex.: NOS)                                                              | Switch nativo da plataforma — muda de cor no padrão iOS/Android automaticamente. Sem texto "yes/no" |
-| **Escolha única**          | `specs.aspiration`, `specs.transmission`, `specs.wheels`, `specs.steering`, `specs.brakes`, `specs.traction` e demais campos categóricos de `specs` | Segmented control ou grupo de botões; exatamente uma opção ativa                                    |
+| **Slider**                 | `specs.displacement`, `specs.valves`                                                             | Passo de 0,1 L na cilindrada e de 4 nas válvulas, começando no valor de fábrica. Motor rotativo (`valves: 0`) não tem slider de válvulas |
+| **Toggle (Switch nativo)** | Tração integral (AWD) e NOS                                                                      | Switch nativo da plataforma — muda de cor no padrão iOS/Android automaticamente. Sem texto "yes/no" |
+| **Escolha única**          | `specs.aspiration`, `specs.transmission`, `specs.wheels`, `specs.brakes`, `specs.steering`       | Lista de linhas com uma opção ativa. Não é segmented control porque os textos de fábrica (rodas, freios) são longos |
 
-> O conjunto exato de controles é derivado do mock. Todo campo configurável presente nos dados do carro vira um controle.
+**De onde vêm as opções.** O mock guarda só **um** valor por carro em cada campo categórico, o de fábrica. As opções do configurador vêm do catálogo de peças (`src/data/partsCatalog.ts`): toda lista começa com **Factory** (o texto do próprio carro) e segue com upgrades que valem pra qualquer carro, cada um com seu efeito em peso, tempo de 0 a 100 e consumo. A aspiração tem quatro opções fixas: naturally aspirated, supercharged, single turbo e twin turbo.
+
+**Tração.** O controle de tração é o toggle AWD, não uma lista. `specs.traction` só define o valor inicial do toggle ("4x4 (AWD)" liga, "4x2 (RWD)" desliga).
+
+> Slider de faixa: cilindrada de (fábrica − 0,6 L, mínimo 1,0) até (fábrica + 1,5 L, máximo 8,0). Válvulas de (fábrica − 8, mínimo 4) até (fábrica + 16).
 
 ### 5.2 Saída em tempo real
 
@@ -122,15 +146,48 @@ As restrições vêm do próprio mock, no grupo `rules` de cada carro:
 | `canChangeTraction: boolean` | Se a tração pode ser alterada em relação à de fábrica                           |
 | `maxHP: number`              | Teto de potência que o conjunto mecânico suporta                                |
 
-**Comportamento:** configuração inválida é **exibida como aviso**, não bloqueada silenciosamente. O usuário vê o que está errado e por quê.
+**Avisos possíveis** (`BuildWarning.code`): `awd-not-supported`, `traction-change-not-allowed`, `nos-not-supported`, `aspiration-not-allowed` e `hp-over-limit`. O `hp-over-limit` compara o HP **calculado** com `maxHP`.
+
+**Aspiração normalizada.** `specs.aspiration` ("Sequential Twin-Turbocharged") e `rules.allowedAspirations` ("Twin Turbo", "Turbo", "Supercharged (rare aftermarket)") descrevem a mesma coisa com palavras diferentes. Os dois lados são convertidos pra um id canônico por palavra-chave (`supercharged`, `twin-turbo`, `single-turbo`, `naturally-aspirated`) antes de comparar. Comparar o texto cru reprovaria o carro de fábrica.
+
+**Invariante.** A configuração de fábrica de qualquer carro nunca gera aviso.
+
+**Comportamento:** configuração inválida é **exibida como aviso**, não bloqueada silenciosamente. O usuário vê o que está errado e por quê. Aviso nunca desabilita o botão de salvar.
 
 > **Decisão em aberto:** build inválida pode ser salva com o aviso anexado, ou o botão de salvar fica desabilitado? Ver seção 11. Resposta: pode salvar com o aviso anexado.
 
 ### 5.4 Salvar
 
-Botão **"Save build"** ao final.
+Campo de **nome** e botão **"Save build"** ao final. O nome começa como "<modelo> build" e é editável. Ao salvar, o app volta pra tab Builds.
 
-Ao salvar, a build recebe um **nome** definido pelo usuário.
+Abrir uma build salva pela tab Builds reabre o configurador em modo edição ("Save changes"), com os controles nos valores salvos. "Reset to factory" volta todos os controles ao valor de fábrica.
+
+### 5.5 Modelo de cálculo (v1, local)
+
+Não são dados reais de performance (seção 12): é um modelo simples e previsível, implementado em `src/engine/calculate.ts`. Roda no aparelho na v1 e é uma função pura, então na fase 3 pode virar uma chamada de API com a mesma assinatura.
+
+Toda fórmula é uma **razão em relação à configuração de fábrica**. Por isso a configuração de fábrica reproduz `car.performance` exatamente, e isso é verificado nos 14 carros (`npm run verify:engine`).
+
+```
+hp          = hpBase × (cilindrada/base)^0.9 × (aspiração/base) × (válvulas/base)^0.3 × NOS
+torque      = torqueBase × (hp/hpBase)^0.95            (a rotação do pico não muda)
+peso        = pesoBase + 55 kg por litro extra + equipamento da aspiração + peças + AWD
+topSpeed    = topSpeedBase × (hp/hpBase)^(1/3)         (limitada pelo arrasto, só depende de potência)
+aceleração  = tempoBase × √((peso/hp)/(pesoBase/hpBase)) × câmbio × tração
+consumo     = consumoBase ÷ (cilindrada^0.8 × aspiração × (peso/base)^0.3 × peças)
+```
+
+| Fator                | Valor                                                                         |
+| -------------------- | ----------------------------------------------------------------------------- |
+| Potência da aspiração | aspirado 1,00; supercharged 1,28; single turbo 1,40; twin turbo 1,50         |
+| Peso do equipamento   | aspirado 0; supercharged +30 kg; single turbo +35 kg; twin turbo +55 kg       |
+| Consumo da aspiração  | aspirado 1,00; supercharged 1,12; single turbo 1,10; twin turbo 1,18          |
+| NOS                   | potência × 1,12; não altera peso nem consumo                                  |
+| AWD ligado (era RWD)  | +70 kg e tempo de 0 a 100 × 0,95                                              |
+| AWD desligado (era AWD) | −70 kg e tempo de 0 a 100 × 1,06                                            |
+| Peças                 | cada opção do catálogo tem delta de peso e multiplicadores de aceleração e consumo (câmbio é a que mais pesa em aceleração) |
+
+A velocidade em mph usa a mesma razão aplicada à velocidade em mph do mock. Os valores são arredondados no fim: hp, torque e velocidade inteiros, aceleração e consumo com uma casa.
 
 ---
 
@@ -150,30 +207,40 @@ O card da build exibe:
 - Nome da build (definido pelo usuário)
 - Carro base (nome + ano)
 - Resultado calculado: HP, torque, top speed, acceleration, consumption
-- Indicador de compatibilidade
+- Indicador de compatibilidade ("Compatible" ou "N warnings")
+
+Tocar no card abre o configurador em modo edição. As builds aparecem da mais recente pra mais antiga; editar uma build não muda a data de criação.
 
 ### 6.2 Ações
 
 - **Filtrar** builds
-- **Nomear / renomear** builds
+- **Renomear** builds (lápis no card, abre um modal)
+- **Excluir** builds (lixeira no card, pede confirmação)
 
-> **Decisão em aberto:** filtrar por quais critérios? Ver seção 11. Respondido na seção 11.
+**Critérios de filtro** (todos opcionais e combináveis, seção 11 item 5): carro base, marca, faixa de HP e compatibilidade.
+
+- Carro base e marca: múltipla escolha, OU dentro do critério. As opções são só as dos carros que têm build salva.
+- Faixa de HP, escolha única: Any, Under 200, 200 to 300, 300 to 400, 400 and up. Cada faixa é `[min, max)`: 300 HP cai em "300 to 400".
+- Compatibilidade, escolha única: All, Compatible, With warnings.
+- Entre critérios diferentes é E.
+
+Sem nenhuma build salva, a tab mostra um estado vazio explicando como criar a primeira.
 
 ---
 
 ## 7. Tab: Assistant
 
-**Fora da v1. Última coisa a ser construída.**
+**A interface está pronta. A resposta depende do backend (fase 4).**
 
-Chatbot que tira dúvidas do usuário sobre carros, specs e configurações, usando uma API gratuita de LLM.
+Chatbot que tira dúvidas do usuário sobre carros, specs e configurações, usando uma API gratuita de LLM atrás do backend.
 
-Especificação detalhada será escrita quando a v1 estiver entregue. Não planejar agora.
+A tela (lista de mensagens, campo de texto, estado de carregando, sugestões) fala só com a interface `AssistantService` em `src/services/assistant.ts`. Hoje a implementação recusa toda mensagem com `AssistantUnavailableError` e a tela mostra isso como uma resposta do assistente ("offline for now"). Quando o backend existir, só esse arquivo muda. As mensagens ficam só em memória.
 
 ---
 
 ## 8. Tab: Settings
 
-- **Theme** — alternar entre light e dark
+- **Theme** — System, Light ou Dark. System segue o aparelho; Light e Dark forçam o esquema. A escolha é salva no aparelho
 - **About the project** — descrição do Garage64
 - **About the creator** — perfil do autor
 - **Links** — links pessoais/profissionais do autor
@@ -188,7 +255,13 @@ Especificação detalhada será escrita quando a v1 estiver entregue. Não plane
 
 **Temas:** light e dark, ambos completos. O amarelo é o destaque nos dois.
 
-Consequência prática: nenhuma cor pode ser hardcoded em componente. Todo valor de cor sai de um objeto de tema central, senão o toggle de tema não funciona.
+Consequência prática: nenhuma cor pode ser hardcoded em componente. Todo valor de cor sai de um objeto de tema central (`src/theme/colors.ts`), senão o toggle de tema não funciona.
+
+**Amarelo no claro.** O amarelo de preenchimento (botões, switch, barras) é o mesmo nos dois temas. Mas o amarelo puro não tem contraste sobre branco, então o **texto e os ícones** em amarelo usam um âmbar mais escuro no tema claro (token `accentText`).
+
+**Visual iOS.** No iOS 26+ o app usa o Liquid Glass do sistema: a tab bar flutuante nativa, os botões do header e as superfícies de card e de painel. Onde o vidro não existe (Android, web, iOS anterior ao 26, ou "Reduzir transparência" ligado) as superfícies caem numa cor sólida do tema. Conteúdo (listas de specs, textos) fica em superfície sólida; o vidro é pra controles e cards interativos.
+
+**Web.** A web usa uma barra de tabs clássica, pintada com os mesmos tokens, e o botão de filtro vai no header como componente. O vidro e a tab bar nativa só existem nos apps nativos.
 
 ---
 
@@ -254,15 +327,28 @@ Car {
 
 ### Build (criada pelo usuário)
 
+Fonte da verdade: `src/types/build.ts`.
+
 ```
-id
-carId          → referência a Car.info.id
-name           → definido pelo usuário
-config         → todas as escolhas feitas no configurador
-computed       → mesma forma de Car.performance
-warnings[]     → avisos de compatibilidade no momento do salvamento
-createdAt
+Build {
+  id
+  carId          → referência a Car.info.id
+  name           → definido pelo usuário
+  config: {
+    displacement: number        // litros
+    valves: number
+    aspiration: "naturally-aspirated" | "supercharged" | "single-turbo" | "twin-turbo"
+    transmission, wheels, steering, brakes: string   // id da opção, ou "factory"
+    awd: boolean
+    nos: boolean
+  }
+  computed       → mesma forma de Car.performance
+  warnings[]     → { code, message }, avisos de compatibilidade no momento do salvamento
+  createdAt      → ISO 8601
+}
 ```
+
+Builds ficam no AsyncStorage, anônimas e locais, sob a chave versionada `garage64:builds:v1`. A leitura é defensiva: JSON corrompido vira lista vazia e itens inválidos são descartados, sem derrubar o app.
 
 **Princípio 1:** a Build guarda a **referência** ao carro, não uma cópia dos dados dele.
 
@@ -274,7 +360,7 @@ createdAt
 
 Itens que precisam de decisão antes ou durante a construção.
 
-1. **Fórmulas de cálculo.** Como cada spec afeta HP, torque, top speed, acceleration e consumption? Não está definido. É o coração do app e precisa ser escrito antes de codar o motor de cálculo. Resposta: ainda não comecei a estudar a arte liberal da aritmética por falta de tempo depois de ter tido uma péssima formação na escola. Então, aceito sugestões de cálculos que o agente der.
+1. **Fórmulas de cálculo.** Como cada spec afeta HP, torque, top speed, acceleration e consumption? Não está definido. É o coração do app e precisa ser escrito antes de codar o motor de cálculo. Resposta: ainda não comecei a estudar a arte liberal da aritmética por falta de tempo depois de ter tido uma péssima formação na escola. Então, aceito sugestões de cálculos que o agente der. **Resolvido:** modelo proposto e implementado, ver seção 5.5. Os coeficientes são uma proposta para revisão.
 
 2. **Persistência das builds na v1.** O mock é local e somente leitura. Onde as builds salvas ficam? Memória (some ao fechar o app), AsyncStorage (persiste local) ou Supabase já na v1? Resposta: Localmente, em AsyncStorage.
 
@@ -294,6 +380,10 @@ Itens que precisam de decisão antes ou durante a construção.
 
 10. **Campo `color`.** Existe em `info` e está preenchido nos 14 carros, mas nenhuma tela da spec o exibe. É dado morto ou entra na Car Detail? Resposta: entra na Car Detail.
 
+11. **Distribuição.** Como alguém que não é o autor abre o app no celular? Resposta: link web mais APK Android. Consequência: a seção 12 deixou de proibir a versão web, e a web ganhou um layout de tabs próprio. Plano em `docs/deploy.md`.
+
+12. **Tração contraditória nos dados.** `canChangeTraction` é `false` nos 14 carros, mas `allowAWD` é `true` no Supra (que é RWD de fábrica). Ligar AWD nele gera o aviso de mudança de tração, porque a regra mais restritiva vale. Se a intenção era permitir, `canChangeTraction` do Supra precisa virar `true`.
+
 ---
 
 ## 12. Fora de escopo
@@ -305,7 +395,7 @@ Definir o que o app **não** faz é o que impede o escopo de inchar.
 - Não tem dados reais de performance. Todos os cálculos são simulados por modelo próprio.
 - Não tem edição de catálogo pelo usuário. O catálogo é fixo.
 - Não tem compartilhamento de builds entre usuários.
-- Não tem versão web.
+- Não tem recursos exclusivos da web. A versão web existe só como forma de distribuição (seção 11, item 11): sem o vidro e a tab bar nativa do iOS.
 
 ---
 
@@ -315,8 +405,10 @@ Definir o que o app **não** faz é o que impede o escopo de inchar.
 App inteiro rodando com mock local: Catalog, Car Detail, Build Configurator (controles + cálculo em tempo real + validação), Builds (listagem, nomeação, filtro), Settings (tema, about, links).
 É aqui que mora o aprendizado de React Native.
 
+**Estado:** o frontend da fase 1 está completo. O que sobra depende de backend: contas e armazenamento (fase 2), cálculo e chaves no servidor (fase 3) e a resposta do Assistant (fase 4).
+
 **Fase 2 — Persistência**
-Supabase: autenticação e armazenamento das builds. Migrar o catálogo do mock pro banco.
+Supabase: autenticação e armazenamento das builds. Migrar o catálogo do mock pro banco. O plano de deploy está em `docs/deploy.md`.
 
 **Fase 3 — Backend Next.js**
 Somente se a decisão do ponto 4 da seção 11 justificar a existência dele. Resposta: justificada.
