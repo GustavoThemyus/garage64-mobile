@@ -13,12 +13,9 @@ import {
   View,
 } from "react-native";
 import { router } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context"; // Import do hook useSafeAreaInsets, que impede que os elementos fiquem atrás do Notch do celular.
 
 // Essa é a função principal da tela inicial, que renderiza a lista de carros
 export default function HomeScreen() {
-  // Hook useSafeAreaInsets aplicado a constante insets
-  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions(); // Hook useWindowDimensions aplicado a constante width, que retorna a largura da tela
   const [isFilterOpen, setIsFilterOpen] = useState(false); // Constante com useState que determina os dados de filtro aberto e fechado
   const [filters, setFilters] = useState<{
