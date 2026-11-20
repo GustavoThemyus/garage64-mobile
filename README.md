@@ -88,6 +88,21 @@ The calculation is a simple model of my own, not real performance data. Every fo
 
 ---
 
+## Web or Expo Go
+
+The app opens in two ways, and they are not the same experience.
+
+| | Web (`garage64-mobile.vercel.app`) | Expo Go (iOS) |
+| --- | --- | --- |
+| Install | none, or "Add to Home Screen" | Expo Go from the App Store, then the QR code |
+| Tab bar | classic tab bar drawn by the app | iOS 26+ floating Liquid Glass tab bar |
+| Header | opaque header, no large title | native header with large title that collapses on scroll, glass buttons |
+| Filters | panel in the corner | native iOS menu anchored to the button |
+| Theme switch | app drawn | native segmented control |
+| Saved builds | stored in the browser | stored in the app, separate from the browser |
+
+A browser cannot draw the native iOS 26 tab bar, the glass buttons or the native menus, so the web version will always look different. **For the complete experience, run it in Expo Go.** The web version is for sharing a link with someone who has nothing installed.
+
 ## Running it
 
 You need Node 22.13 or newer.
@@ -158,7 +173,9 @@ The catalog and the builds are read through two small interfaces, `CarsRepositor
 
 **One data contradiction.** Every car has `canChangeTraction` set to false, but the Supra allows all-wheel drive. Turning it on shows the stricter warning. It is listed in the spec so the data can be fixed.
 
-**The web build has no Liquid Glass.** It uses classic tabs and solid surfaces.
+**The web build has no Liquid Glass and no native iOS controls.** It uses classic tabs, an opaque header and solid surfaces. This is a limit of browsers, not a bug. Use Expo Go for the full iOS look (see [Web or Expo Go](#web-or-expo-go)).
+
+**Web and Expo Go do not share builds.** Each one keeps its own storage, so a build saved in one does not appear in the other until there is a cloud backend.
 
 **The iOS filter menu closes its submenu after each choice.** To let you pick several brands without the menu closing, it stays open after a tap, but iOS rebuilds it each time, so the open submenu collapses back to the main menu. This is a documented limit of the Expo menu API.
 

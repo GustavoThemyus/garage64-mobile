@@ -104,7 +104,7 @@ O comportamento do app está especificado em `docs/spec.md`, em português. O pl
 
 - **Frontend da v1 completo**, com as 4 tabs da spec: Catalog (grade, filtros), Car Detail (7 blocos), Compare, Build Configurator (controles, resultado em tempo real, avisos de compatibilidade), Builds (editar, renomear, excluir, filtrar), Settings (tema, sobre, links) e Assistant (tela de chat completa).
 - **Visual aprovado no iPhone** (Expo Go, SDK 58): tabs nativas, balão de filtro, cards com aro em degradê e seletor nativo de tema.
-- **Web:** o header é opaco e a tab bar tem altura e folga de baixo explícitas (`_layout.web.tsx`). Não foi conferido num celular.
+- **Web:** o header é opaco e a tab bar tem altura e folga de baixo explícitas (`_layout.web.tsx`). A web nunca terá tab nativa, título grande nem menu nativo do iOS (limite do navegador); o README explica e indica o Expo Go como experiência completa.
 - **Tudo roda local.** Catálogo é o mock, builds ficam no aparelho, e o Assistant responde que está offline.
 - **Depende de backend e ainda não existe:** contas e armazenamento na nuvem (spec fase 2), cálculo no servidor (fase 3) e a resposta do Assistant (fase 4).
 - **Deploy:** a configuração está pronta (web na Vercel, APK pelo EAS). Falta criar as contas e fazer o primeiro deploy. Passos em `README.md` (Next steps) e `docs/deploy.md`.
