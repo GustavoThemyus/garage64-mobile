@@ -62,8 +62,7 @@ export function isBuild(value: unknown): value is Build {
   );
 }
 
-// Lê o JSON salvo sem nunca quebrar o app: dado corrompido vira lista vazia e
-// itens inválidos são descartados em vez de derrubar a lista inteira.
+// Dado corrompido vira lista vazia; itens inválidos são descartados.
 export function parseBuilds(raw: string | null): Build[] {
   if (!raw) return [];
   try {

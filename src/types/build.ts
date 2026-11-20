@@ -6,8 +6,7 @@ export type AspirationId =
   | "single-turbo"
   | "twin-turbo";
 
-// Campos categóricos do configurador. O valor é o id de uma opção do catálogo
-// de peças, ou "factory" pra manter o que o carro traz de fábrica.
+// Campos categóricos do configurador. O valor é o id de uma opção do catálogo de peças, ou "factory".
 export type PartField = "transmission" | "wheels" | "steering" | "brakes";
 
 export type BuildConfig = {
@@ -34,8 +33,7 @@ export type BuildWarning = {
   message: string;
 };
 
-// Mesma forma de Car["performance"]: hp, torque [Nm, rpm], topSpeed [km/h, mph],
-// acceleration (0-100 km/h, s) e consumption (km/L).
+// Mesma forma de Car["performance"].
 export type BuildPerformance = Car["performance"];
 
 export type CalculatedBuild = {
@@ -45,7 +43,7 @@ export type CalculatedBuild = {
 
 export type Build = {
   id: string;
-  // Referência ao carro base (Car.info.id), nunca uma cópia dos dados dele.
+  // Car.info.id; nunca uma cópia do carro
   carId: number;
   name: string;
   config: BuildConfig;
@@ -54,8 +52,7 @@ export type Build = {
   createdAt: string;
 };
 
-// O que o configurador entrega pra salvar. Com id atualiza uma build existente,
-// sem id cria uma nova (o id e a data de criação são gerados ao salvar).
+// Com id atualiza uma build existente; sem id cria uma nova.
 export type BuildDraft = {
   id?: string;
   carId: number;

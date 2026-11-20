@@ -6,8 +6,7 @@ import Animated, {
 
 import { useTheme } from "@/src/theme/useTheme";
 
-// Camada que clareia o card pressionado. Vai como último filho do SurfaceCard,
-// que já recorta nos cantos arredondados. Não captura toque.
+// Último filho do SurfaceCard, que já recorta os cantos. Não captura toque.
 export function PressHighlight({ progress }: { progress: SharedValue<number> }) {
   const theme = useTheme();
   const animatedStyle = useAnimatedStyle(() => ({ opacity: progress.value }));

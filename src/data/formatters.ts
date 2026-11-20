@@ -13,12 +13,11 @@ export type PerformanceStat = {
   detail?: string;
 };
 
-// "1999" vira "1990s". A década não é campo do mock, deriva do ano.
+// "1999" vira "1990s"
 export function decadeOf(year: number): string {
   return `${Math.floor(year / 10) * 10}s`;
 }
 
-// Weight guarda [kg, lb]: a mesma massa em duas unidades.
 function formatSpecValue(field: string, value: SpecValue): string {
   if (field === "weight" && Array.isArray(value)) {
     return `${value[0]} kg / ${value[1]} lb`;
@@ -32,8 +31,7 @@ function formatSpecValue(field: string, value: SpecValue): string {
   return String(value);
 }
 
-// As 13 specs viram linhas rótulo/valor. O rótulo vem do dicionário, nunca do
-// nome da chave, que é identificador do código e não texto pro usuário.
+// O rótulo vem do dicionário, nunca do nome da chave.
 export function getSpecRows(car: Car): DetailRow[] {
   return Object.entries(car.specs).map(([field, value]) => ({
     key: field,
@@ -58,8 +56,7 @@ export function getIdentificationRows(car: Car): DetailRow[] {
   ];
 }
 
-// Torque guarda [Nm, rpm]: duas grandezas diferentes (o valor e a rotação onde
-// ele acontece). Já topSpeed guarda [km/h, mph]: a mesma velocidade em duas unidades.
+// torque é [Nm, rpm] (duas grandezas); topSpeed é [km/h, mph] (uma, em duas unidades)
 export function getPerformanceStats(
   performance: Car["performance"],
 ): PerformanceStat[] {

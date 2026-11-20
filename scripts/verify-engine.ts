@@ -1,6 +1,4 @@
-// Verificação do motor de cálculo e das regras. Não há test runner no projeto,
-// então isto é um script simples: roda com `npm run verify:engine` e falha
-// (código de saída 1) se qualquer invariante quebrar.
+// Roda com `npm run verify:engine`. Sai com código 1 se qualquer invariante quebrar (o projeto não tem test runner).
 import { carsMoch } from "../src/data/carsMoch";
 import { FACTORY_ID, getPartOptions } from "../src/data/partsCatalog";
 import { normalizeAspiration } from "../src/engine/aspiration";
@@ -39,7 +37,7 @@ for (const car of carsMoch) {
   const { performance: result, weightKg } = calculateBuild(car, factory);
   const base = car.performance;
 
-  // 1. A configuração de fábrica reproduz o mock exatamente.
+  // fábrica reproduz o mock
   check(`${label}: factory hp`, result.hp === base.hp);
   check(`${label}: factory torque`, result.torque[0] === base.torque[0]);
   check(
@@ -51,7 +49,7 @@ for (const car of carsMoch) {
   check(`${label}: factory consumption`, result.consumption === base.consumption);
   check(`${label}: factory weight`, weightKg === car.specs.weight[0]);
 
-  // 2. O carro de fábrica nunca gera aviso.
+  // fábrica nunca gera aviso
   const warnings = validateBuild(car, factory);
   check(
     `${label}: factory has no warnings`,
@@ -59,13 +57,13 @@ for (const car of carsMoch) {
     warnings.map((w) => w.code).join(","),
   );
 
-  // 3. Texto de aspiração do mock é reconhecido (pega erro de digitação nos dados).
+  // texto de aspiração do mock é reconhecido
   check(`${label}: specs.aspiration recognized`, normalizeAspiration(car.specs.aspiration) !== null);
   for (const text of car.rules.allowedAspirations) {
     check(`${label}: rules aspiration "${text}" recognized`, normalizeAspiration(text) !== null);
   }
 
-  // 4. Os controles começam dentro da faixa do slider.
+  // controles começam dentro da faixa do slider
   const ranges = getConfigRanges(car);
   check(
     `${label}: displacement inside slider range`,
@@ -81,7 +79,7 @@ for (const car of carsMoch) {
           factory.valves <= ranges.valves.max,
   );
 
-  // 5. Mais cilindrada ou NOS nunca reduz a potência.
+  // mais cilindrada ou NOS nunca reduz a potência
   const bigger = calculateBuild(car, { ...factory, displacement: factory.displacement + 0.5 });
   check(`${label}: more displacement keeps hp`, bigger.performance.hp >= result.hp);
   check(`${label}: more displacement adds weight`, bigger.weightKg > weightKg);
@@ -89,7 +87,7 @@ for (const car of carsMoch) {
   check(`${label}: NOS raises hp`, nos.performance.hp > result.hp);
   check(`${label}: NOS does not change weight`, nos.weightKg === weightKg);
 
-  // 6. Forçar a indução aumenta a potência, na ordem esperada.
+  // ordem de potência das aspirações
   const power = (aspiration: typeof factory.aspiration) =>
     calculateBuild(car, { ...factory, aspiration }).performance.hp;
   check(
@@ -99,7 +97,7 @@ for (const car of carsMoch) {
       power("single-turbo") <= power("twin-turbo"),
   );
 
-  // 7. Toda opção de peça tem id único e começa por "factory".
+  // opções de peça: ids únicos e "factory" primeiro
   for (const field of PART_FIELDS) {
     const options = getPartOptions(car, field);
     check(`${label}: ${field} starts with factory`, options[0].id === FACTORY_ID);
@@ -110,7 +108,7 @@ for (const car of carsMoch) {
   }
 }
 
-// 8. As regras disparam os avisos certos.
+// regras disparam os avisos certos
 const civic = find(5);
 const civicFactory = getFactoryConfig(civic);
 const codes = (car: typeof civic, config: typeof civicFactory) =>
@@ -130,7 +128,7 @@ const alpine = find(14);
 const alpineBoosted = { ...getFactoryConfig(alpine), aspiration: "single-turbo" as const, nos: true };
 check("Alpine: boosted past maxHP warns", codes(alpine, alpineBoosted).includes("hp-over-limit"));
 
-// 9. O comparador é simétrico e sempre tem um melhor.
+// comparador simétrico
 const a = carsMoch[0];
 const b = find(5);
 check("compare: same car ties", compareCars(a, a).every((r) => r.winner === "tie"));
@@ -142,7 +140,7 @@ check(
 );
 check("compare: one side always scores 1", ab.every((r) => Math.max(r.a.score, r.b.score) === 1));
 
-// 10. Ler builds salvas nunca quebra, mesmo com dado corrompido.
+// leitura de builds salvas
 const evaluated = evaluateBuild(civic, { ...civicFactory, aspiration: "twin-turbo" });
 const sample: Build = {
   id: "abc123",
@@ -161,7 +159,7 @@ check("storage: drops only the invalid items", parseBuilds(JSON.stringify([sampl
 check("storage: rejects an unknown aspiration", parseBuilds(JSON.stringify([{ ...sample, config: { ...sample.config, aspiration: "warp-drive" } }])).length === 0);
 check("storage: rejects a malformed result", parseBuilds(JSON.stringify([{ ...sample, computed: { hp: 1 } }])).length === 0);
 
-// 11. Filtro de builds: critérios opcionais e combináveis.
+// filtro de builds
 const makeBuild = (id: string, car: typeof civic, patch: Partial<typeof civicFactory>): Build => {
   const config = { ...getFactoryConfig(car), ...patch };
   const evaluation = evaluateBuild(car, config);
@@ -186,8 +184,7 @@ check("filterBuilds: hp range under 200 holds the stock Civic", ids(filterBuilds
 check("filterBuilds: criteria combine (AND)", ids(filterBuilds(all, { ...EMPTY_BUILD_FILTERS, brands: ["Honda"], compatibility: "compatible", hpRange: "200-300" }, carsMoch)) === "civic-boosted");
 check("filterBuilds: no match gives an empty list", filterBuilds(all, { ...EMPTY_BUILD_FILTERS, brands: ["Honda"], hpRange: "over-400" }, carsMoch).length === 0);
 
-// 16. Modelo de filtro: o balão nativo do iOS e o painel do Android/web leem o
-// mesmo modelo, então testar o modelo cobre os dois.
+// modelo de filtro: o balão e o painel leem o mesmo
 const emptyCarFilters: FilterCriteria = { selectedBrand: [], selectedType: [], selectedCountry: [] };
 const calls: string[] = [];
 const carModel = buildCarFilterModel({
@@ -228,7 +225,7 @@ const powerSection = buildModel.sections[2];
 if (powerSection.kind === "single") powerSection.onChange("200-300");
 check("filter model: choosing a power range sets only that criterion", lastCriteria.hpRange === "200-300" && lastCriteria.compatibility === "all");
 
-// 12. Rascunho -> build: o id e a data nascem aqui, e editar não os troca.
+// rascunho para build
 const draft: BuildDraft = {
   carId: civic.info.id,
   name: "  Weekend Civic  ",
@@ -245,8 +242,7 @@ check("draft: editing keeps the id", edited.id === "id-1");
 check("draft: editing keeps the creation date", edited.createdAt === created.createdAt);
 check("draft: editing applies the new name", edited.name === "Renamed");
 
-// 13. Contrato do repositório de builds (a implementação em memória e a do
-// Supabase, no futuro, precisam se comportar igual).
+// contrato do repositório de builds
 async function checkRepositoryContract() {
   const repo = createMemoryBuildsRepository();
   await repo.save(stock);
@@ -265,13 +261,13 @@ async function checkRepositoryContract() {
   check("repository: list returns a copy", (await seeded.list()).length === 1);
 }
 
-// 14. Catálogo: o repositório local entrega os 14 carros já na carga inicial.
+// catálogo local
 async function checkCatalog() {
   check("catalog: local repository has initial cars", localCarsRepository.initialCars?.length === carsMoch.length);
   check("catalog: getCars matches the mock", (await localCarsRepository.getCars()).length === carsMoch.length);
 }
 
-// 15. Serviço do assistente: contrato HTTP e falhas, com fetch simulado.
+// serviço do assistente, com fetch simulado
 async function checkAssistant() {
   const realFetch = globalThis.fetch;
   let lastRequest: { url: string; body: any } | null = null;
@@ -316,9 +312,7 @@ async function checkAssistant() {
   }
 }
 
-// As verificações assíncronas rodam dentro de main() porque o tsx compila o
-// projeto como CommonJS, que não aceita await no topo do arquivo. Se algo falhar,
-// a rejeição derruba o processo com código de saída 1.
+// main() porque o tsx compila como CommonJS, sem await no topo; uma rejeição sai com código 1.
 async function main() {
   await checkRepositoryContract();
   await checkCatalog();

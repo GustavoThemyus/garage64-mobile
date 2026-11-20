@@ -1,17 +1,7 @@
-// Paletas do app. Nenhum componente escreve cor direto: tudo sai daqui via useTheme().
-// Os nomes descrevem o PAPEL da cor, não o valor.
-//
-// accent       preenchimentos (botão, switch ligado, barra). Texto sobre ele usa onAccent.
-// accentText   o amarelo quando é TEXTO ou ícone sobre superfície. No claro o amarelo
-//              puro não tem contraste sobre branco, então vira um âmbar escuro.
-//
-// cardRim*   a borda dos cards: um degradê claro no canto de cima que some no de baixo,
-//             o brilho de aro que dá volume sem usar o vidro do sistema.
-// cardFill*  o preenchimento do card, um degradê bem sutil de cima pra baixo.
-// cardPressOverlay  a camada que clareia o card enquanto ele é pressionado.
-//
-// O amarelo é um ouro (matiz 43). O limão anterior (matiz 52) ficava neon e, ao
-// escurecer, virava oliva. Com matiz dourado, escurecer continua dourado.
+// Nenhum componente escreve cor direto: tudo sai daqui via useTheme(). Os nomes descrevem o papel, não o valor.
+// accent é o preenchimento (texto sobre ele usa onAccent); accentText é o amarelo como texto ou ícone, um âmbar
+// escuro no tema claro por contraste. O amarelo é um ouro (matiz 43): o limão (matiz 52) virava oliva ao escurecer.
+// cardRim* é a borda em degradê dos cards, cardFill* o preenchimento e cardPressOverlay o clareado ao toque.
 const dark = {
   background: "#131313",
   surface: "#1E1E1E",

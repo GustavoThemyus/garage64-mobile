@@ -3,7 +3,6 @@ import { useColorScheme } from "react-native";
 import { colors, ThemeColors, ThemeScheme } from "./colors";
 import { ThemeContext, ThemeContextValue } from "./ThemeProvider";
 
-// Controle completo do tema: preferência, esquema ativo e a paleta.
 // Fora do AppThemeProvider cai no esquema do sistema, sem poder trocar.
 export function useThemeController(): ThemeContextValue {
   const context = useContext(ThemeContext);
@@ -20,7 +19,6 @@ export function useThemeController(): ThemeContextValue {
   };
 }
 
-// Só a paleta, que é o que quase todo componente precisa.
 export function useTheme(): ThemeColors {
   return useThemeController().colors;
 }

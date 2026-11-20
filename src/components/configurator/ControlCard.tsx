@@ -6,13 +6,11 @@ import { useTheme } from "@/src/theme/useTheme";
 
 type ControlCardProps = {
   title: string;
-  // Valor atual, mostrado à direita do título (ex.: "2.6 L").
   value?: string;
   hint?: string;
   children?: ReactNode;
 };
 
-// Um controle do configurador por linha (spec 5.1): título, valor atual e o controle.
 export function ControlCard({ title, value, hint, children }: ControlCardProps) {
   const theme = useTheme();
 

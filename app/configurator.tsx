@@ -49,8 +49,7 @@ export default function ConfiguratorScreen() {
   const { ready, getBuild } = useBuilds();
   const { getCar, ready: carsReady } = useCars();
 
-  // Com buildId abre uma build salva pra editar. Sem ele, cria uma nova a
-  // partir do carro (carId).
+  // buildId edita uma build salva; sem ele, cria uma nova a partir do carId
   const existing = buildId ? getBuild(buildId) : undefined;
   const car = getCar(existing ? existing.carId : Number(carId));
 

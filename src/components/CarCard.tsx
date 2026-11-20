@@ -13,14 +13,8 @@ interface CarCardProps {
   onPress: () => void;
 }
 
-// Regra do card: a estrutura NÃO pode depender do conteúdo. Antes, o rodapé
-// colocava o tipo e o HP na mesma linha quando cabiam ("SEDAN") e quebrava
-// quando não cabiam ("SPORTS COUPE"), e dois cards da mesma linha ficavam com
-// alturas diferentes. Agora:
-//  - nome e marca ocupam sempre UMA linha (o excesso vira reticências)
-//  - o tipo é sempre uma linha e o HP é sempre a linha de baixo
-//  - o card estica até a altura do vizinho (flex: 1 de cima a baixo), então a
-//    altura da linha é a do mais alto e o rodapé fica colado embaixo em todos
+// A estrutura não depende do conteúdo: nome e marca em uma linha, tipo e HP em linhas próprias, e o card
+// estica até a altura do vizinho da linha. Antes, o rodapé quebrava só em alguns tipos e desalinhava a grade.
 export default function CarCard({ car, onPress, cardWidth }: CarCardProps) {
   const theme = useTheme();
   const { progress, onPressIn, onPressOut } = usePressHighlight();
@@ -90,9 +84,7 @@ export default function CarCard({ car, onPress, cardWidth }: CarCardProps) {
 }
 
 const styles = StyleSheet.create({
-  // A sombra fica num wrapper porque o card recorta o conteúdo (overflow hidden),
-  // e no iOS isso cortaria a própria sombra. Sem altura própria: a linha do grid
-  // estica este wrapper até a altura do card mais alto.
+  // A sombra fica num wrapper: o card recorta o conteúdo (overflow hidden), o que cortaria a própria sombra no iOS.
   shadow: {
     borderRadius: radius.lg,
     borderCurve: "continuous",
@@ -132,7 +124,6 @@ const styles = StyleSheet.create({
   details: {
     ...typography.label,
   },
-  // Empurra o tipo e o HP pro fundo do card, em qualquer altura.
   spacer: {
     flexGrow: 1,
     minHeight: spacing.sm,

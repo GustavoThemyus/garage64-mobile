@@ -13,8 +13,7 @@ function unique(values: string[]): string[] {
   return Array.from(new Set(values));
 }
 
-// As opções saem do próprio catálogo, então um carro novo aparece nos filtros sozinho.
-// O valor é o que o filtro compara (ex.: "JP"), o label é o que o usuário lê.
+// As opções saem do catálogo: valor é o que o filtro compara ("JP"), label é o que o usuário lê.
 export function getFilterOptions(cars: Car[]): FilterOptions {
   return {
     brands: unique(cars.map((car) => car.info.brand)).map((value) => ({

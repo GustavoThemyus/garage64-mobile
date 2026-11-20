@@ -1,8 +1,7 @@
-// Dados mostrados em Settings > About the creator e Links.
-// Para adicionar um link novo (LinkedIn, site...), basta incluir um item em LINKS.
+// Dados de Settings. Pra adicionar um link, inclua um item em LINKS.
 export const CREATOR = {
   name: "Gustavo Themyus",
-  // Texto provisório: troque pela sua apresentação quando quiser.
+  // provisório
   bio: "Garage64 is a learning project, made to learn React Native by building something real.",
 };
 

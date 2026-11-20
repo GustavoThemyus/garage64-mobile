@@ -12,8 +12,7 @@ function tabIcon(name: IconName) {
   );
 }
 
-// Na web o NativeTabs cai num fallback simples, então a web tem a própria barra
-// de tabs clássica, pintada com os mesmos tokens do resto do app.
+// O NativeTabs cai num fallback simples na web.
 export default function TabLayoutWeb() {
   const theme = useTheme();
 

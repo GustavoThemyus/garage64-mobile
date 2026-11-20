@@ -9,8 +9,6 @@ type SectionCardProps = {
   children: ReactNode;
 };
 
-// Bloco de conteúdo da Car Detail: título pequeno em caixa alta e um cartão
-// sólido embaixo. Conteúdo fica em superfície sólida, o vidro é pra controles.
 export function SectionCard({ title, children }: SectionCardProps) {
   const theme = useTheme();
 

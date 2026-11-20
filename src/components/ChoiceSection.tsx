@@ -10,8 +10,7 @@ type ChoiceSectionProps<T extends string> = {
   onChange: (id: T) => void;
 };
 
-// Seção de painel de filtro com escolha única, em chips (faixa de HP,
-// compatibilidade). As de múltipla escolha usam FilterSection.
+// Escolha única em chips. As de múltipla escolha usam FilterSection.
 export function ChoiceSection<T extends string>({
   title,
   options,

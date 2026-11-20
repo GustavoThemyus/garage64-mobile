@@ -1,19 +1,15 @@
 import { Build } from "../types/build";
 
-// Onde as builds ficam guardadas. Hoje é o AsyncStorage do aparelho
-// (localBuildsRepository.ts). Na fase 2 (spec) as builds vão pro Supabase: basta
-// outra implementação desta interface, com list = select, save = upsert e
-// remove = delete. O BuildsProvider e as telas não mudam. As operações são por
-// item porque é assim que um banco opera.
+// Hoje é o AsyncStorage; na fase 2 vira o Supabase (list = select, save = upsert, remove = delete) sem mudar telas.
+// As operações são por item porque é assim que um banco opera.
 export interface BuildsRepository {
   list(): Promise<Build[]>;
-  // Insere ou atualiza, pelo id.
+  // insere ou atualiza, pelo id
   save(build: Build): Promise<void>;
   remove(id: string): Promise<void>;
 }
 
-// Implementação em memória, com o mesmo contrato. Serve pra testar a lógica sem
-// o AsyncStorage (que só existe dentro do app).
+// Mesmo contrato, em memória: serve pra testar sem o AsyncStorage.
 export function createMemoryBuildsRepository(
   initial: Build[] = [],
 ): BuildsRepository {

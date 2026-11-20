@@ -2,7 +2,6 @@ import { Car } from "../types/car";
 
 export const carsMoch: Car[] = [
   {
-    // Skyline
     info: {
       id: 1,
       brand: "Nissan",
@@ -60,7 +59,6 @@ export const carsMoch: Car[] = [
   },
 
   {
-    // Supra
     info: {
       id: 2,
       brand: "Toyota",
@@ -118,7 +116,6 @@ export const carsMoch: Car[] = [
   },
 
   {
-    // Porsche 911
     info: {
       id: 3,
       brand: "Porsche",
@@ -175,7 +172,6 @@ export const carsMoch: Car[] = [
   },
 
   {
-    // Mustang
     info: {
       id: 4,
       brand: "Ford",
@@ -231,7 +227,6 @@ export const carsMoch: Car[] = [
   },
 
   {
-    // Civic
     info: {
       id: 5,
       brand: "Honda",
@@ -285,7 +280,6 @@ export const carsMoch: Car[] = [
   },
 
   {
-    // Mazda
     info: {
       id: 6,
       brand: "Mazda",
@@ -343,7 +337,6 @@ export const carsMoch: Car[] = [
   },
 
   {
-    // BMW
     info: {
       id: 7,
       brand: "BMW",
@@ -400,7 +393,6 @@ export const carsMoch: Car[] = [
   },
 
   {
-    // Impreza
     info: {
       id: 8,
       brand: "Subaru",
@@ -458,7 +450,6 @@ export const carsMoch: Car[] = [
   },
 
   {
-    // Mercedes
     info: {
       id: 9,
       brand: "Mercedes",
@@ -513,7 +504,6 @@ export const carsMoch: Car[] = [
   },
 
   {
-    // Silvia
     info: {
       id: 10,
       brand: "Nissan",
@@ -571,7 +561,6 @@ export const carsMoch: Car[] = [
   },
 
   {
-    // Aston Martin
     info: {
       id: 11,
       brand: "Aston Martin",
@@ -633,7 +622,6 @@ export const carsMoch: Car[] = [
   },
 
   {
-    // Omega
     info: {
       id: 12,
       brand: "Opel",
@@ -690,7 +678,6 @@ export const carsMoch: Car[] = [
   },
 
   {
-    // McLaren
     info: {
       id: 13,
       brand: "McLaren",
@@ -748,7 +735,6 @@ export const carsMoch: Car[] = [
   },
 
   {
-    // Alpine
     info: {
       id: 14,
       brand: "Alpine",

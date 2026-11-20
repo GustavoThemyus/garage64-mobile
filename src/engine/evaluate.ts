@@ -9,7 +9,6 @@ export type EvaluatedBuild = {
   warnings: BuildWarning[];
 };
 
-// Tudo que o configurador mostra e salva sai daqui: resultado calculado + avisos.
 export function evaluateBuild(car: Car, config: BuildConfig): EvaluatedBuild {
   const { performance, weightKg } = calculateBuild(car, config);
   return { performance, weightKg, warnings: validateBuild(car, config) };

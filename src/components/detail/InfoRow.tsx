@@ -9,8 +9,6 @@ type InfoRowProps = {
   isLast?: boolean;
 };
 
-// Linha rótulo à esquerda, valor à direita. Valores longos (freios, rodas)
-// quebram de linha em vez de empurrar o rótulo.
 export function InfoRow({ label, value, isLast = false }: InfoRowProps) {
   const theme = useTheme();
 

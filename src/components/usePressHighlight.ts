@@ -4,16 +4,11 @@ import {
   withTiming,
 } from "react-native-reanimated";
 
-// Feedback de toque dos cards: ao pressionar, o card clareia por inteiro e ao
-// soltar volta. Não escala. A curva foi medida num vídeo de referência: o
-// preenchimento sobe em ~150 ms (rápido e depois assenta), segura enquanto o
-// dedo está em cima e desce em ~120 ms. A intensidade é o token
-// cardPressOverlay, de propósito bem mais fraca que a do vídeo (cerca de um terço).
+// Curva medida num vídeo de referência: sobe em ~150 ms, desce em ~120 ms. A intensidade é o token cardPressOverlay.
 const PRESS_IN_MS = 150;
 const PRESS_OUT_MS = 120;
 
 export function usePressHighlight() {
-  // 0 = em repouso, 1 = pressionado. PressHighlight lê isto como opacidade.
   const progress = useSharedValue(0);
 
   return {

@@ -4,7 +4,6 @@ export type ChatMessage = {
   id: string;
   role: "user" | "assistant";
   text: string;
-  // Resposta de falha (serviço fora do ar), exibida com outro estilo.
   isError?: boolean;
 };
 
@@ -15,13 +14,10 @@ export class AssistantUnavailableError extends Error {
   }
 }
 
-// Ponto único de contato do chat com o mundo de fora. A tela só conhece esta
-// interface.
 export interface AssistantService {
   sendMessage(history: ChatMessage[], text: string): Promise<string>;
 }
 
-// Sem EXPO_PUBLIC_API_URL o assistente fica desligado e o chat avisa isso.
 export const offlineAssistantService: AssistantService = {
   async sendMessage() {
     throw new AssistantUnavailableError(
@@ -32,13 +28,9 @@ export const offlineAssistantService: AssistantService = {
 
 const REQUEST_TIMEOUT_MS = 30_000;
 
-// Contrato que a API Next.js (docs/deploy.md, etapa E) precisa cumprir:
-//
-//   POST {EXPO_PUBLIC_API_URL}/api/assistant
-//   corpo:    { "messages": [{ "role": "user" | "assistant", "text": string }] }
-//             (o histórico em ordem, terminando na mensagem nova do usuário)
-//   resposta: 200 { "reply": string }
-//   erro:     qualquer status diferente de 200
+// Contrato da API (docs/deploy.md, etapa E): POST {EXPO_PUBLIC_API_URL}/api/assistant
+//   corpo     { messages: [{ role: "user" | "assistant", text }] }, o histórico em ordem terminando na mensagem nova
+//   resposta  200 { reply: string }; qualquer outro status é erro
 export function createHttpAssistantService(baseUrl: string): AssistantService {
   return {
     async sendMessage(history, text) {

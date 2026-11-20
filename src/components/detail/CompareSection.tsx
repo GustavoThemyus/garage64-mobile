@@ -16,8 +16,6 @@ import { radius, spacing, typography } from "@/src/theme/tokens";
 import { useTheme } from "@/src/theme/useTheme";
 import { Car } from "@/src/types/car";
 
-// "Compare" no fim da Car Detail: expande pra baixo, escolhe outro carro e
-// mostra as barras lado a lado (spec 4.2).
 export function CompareSection({ car }: { car: Car }) {
   const theme = useTheme();
   const { getCar } = useCars();

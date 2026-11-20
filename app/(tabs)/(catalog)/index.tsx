@@ -23,7 +23,6 @@ export default function CatalogScreen() {
   const { width } = useWindowDimensions();
   const [filters, setFilters] = useState<FilterCriteria>(EMPTY_FILTERS);
 
-  // Marca ou desmarca um valor dentro de uma categoria, sem mexer nas outras.
   function toggleFilter(category: keyof FilterCriteria, value: string) {
     const list = filters[category];
     const next = list.includes(value)
@@ -52,9 +51,7 @@ export default function CatalogScreen() {
   if (error) return <EmptyState title="Catalog unavailable" message={error} />;
   if (!ready) return <EmptyState title="Loading catalog" />;
 
-  // A lista precisa ser o primeiro filho da tela (um Fragment, não uma View que
-  // a embrulha). Só assim o iOS liga o título grande à rolagem e desenha o efeito
-  // de borda de rolagem sob o header.
+  // A lista precisa ser o primeiro filho da tela: só assim o iOS liga o título grande à rolagem.
   return (
     <>
       <FlatList
@@ -92,8 +89,7 @@ const styles = StyleSheet.create({
   row: {
     gap: GRID_GAP,
     marginBottom: spacing.md,
-    // Linha incompleta (ex.: 3 resultados em 2 colunas) alinha à esquerda, na
-    // mesma coluna dos cards de cima, em vez de centralizar o card sozinho.
+    // linha incompleta alinha à esquerda, na coluna dos cards de cima
     justifyContent: "flex-start",
   },
 });

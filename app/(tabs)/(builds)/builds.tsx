@@ -24,7 +24,6 @@ export default function BuildsScreen() {
   const [criteria, setCriteria] = useState<BuildFilterCriteria>(EMPTY_BUILD_FILTERS);
   const [renaming, setRenaming] = useState<Build | null>(null);
 
-  // Mais recentes primeiro. Editar uma build não muda a data de criação.
   const sorted = useMemo(
     () => [...builds].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     [builds],
@@ -52,7 +51,7 @@ export default function BuildsScreen() {
     );
   }
 
-  // Ainda lendo do disco: tela vazia na cor de fundo, sem piscar o estado vazio.
+  // evita piscar o estado vazio enquanto lê do disco
   if (!ready) return null;
 
   if (builds.length === 0) {
@@ -64,7 +63,7 @@ export default function BuildsScreen() {
     );
   }
 
-  // Lista como primeiro filho da tela, pelo mesmo motivo do Catalog.
+  // lista como primeiro filho da tela, como no Catalog
   return (
     <>
       {visible.length === 0 ? (

@@ -12,7 +12,6 @@ type OutputPanelProps = {
   factory: EvaluatedBuild;
 };
 
-// Resultado em tempo real (spec 5.2): recalcula a cada mudança, sem botão.
 export function OutputPanel({ result, factory }: OutputPanelProps) {
   const theme = useTheme();
   const stats = getPerformanceStats(result.performance);

@@ -10,15 +10,13 @@ import { Car } from "@/src/types/car";
 
 type BuildCardProps = {
   build: Build;
-  // Pode faltar se o carro saiu do catálogo depois da build ser salva.
+  // pode faltar se o carro saiu do catálogo depois da build ser salva
   car: Car | undefined;
   onPress: () => void;
   onRename: () => void;
   onDelete: () => void;
 };
 
-// Card da tab Builds (spec 6.1): o mesmo visual do card do Catalog, em 1 coluna,
-// com espaço pra mostrar o resultado calculado e a compatibilidade.
 export function BuildCard({
   build,
   car,

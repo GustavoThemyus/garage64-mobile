@@ -1,12 +1,9 @@
 import { Car } from "../types/car";
 import { carsMoch } from "./carsMoch";
 
-// De onde o catálogo vem. Hoje é o mock local. Na fase 2 (spec) o catálogo
-// migra pro banco: basta escrever outra implementação desta interface, por
-// exemplo uma que lê a tabela `cars` do Supabase, e passá-la ao CarsProvider.
-// Nenhuma tela precisa mudar.
+// Hoje é o mock local; na fase 2 o catálogo vem do banco com outra implementação desta interface.
 export interface CarsRepository {
-  // Quando existe, o catálogo já nasce pronto (sem tela de carregando).
+  // quando existe, o catálogo nasce pronto
   initialCars?: Car[];
   getCars(): Promise<Car[]>;
 }

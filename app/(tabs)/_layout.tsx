@@ -2,9 +2,7 @@ import { NativeTabs } from "expo-router/native-tabs";
 
 import { useTheme } from "@/src/theme/useTheme";
 
-// Tab bar nativa. No iOS 26+ o sistema desenha a barra flutuante de vidro, com
-// a cápsula no item selecionado: forma e fundo não são configuráveis, só a cor
-// do item ativo. No Android vira a barra Material. A web usa _layout.web.tsx.
+// No iOS 26+ a forma e o fundo da barra são do sistema; só a cor do item ativo é configurável.
 export default function TabLayout() {
   const theme = useTheme();
 

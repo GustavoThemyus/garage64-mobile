@@ -15,8 +15,7 @@ import {
 
 import { useTheme, useThemeController } from "@/src/theme/useTheme";
 
-// Vidro líquido só existe no iOS 26+. Também desliga quando o usuário ativou
-// "Reduzir transparência" nos ajustes de acessibilidade.
+// Vidro só no iOS 26+, e desligado com "Reduzir transparência".
 export function useGlassAvailable(): boolean {
   const [reduceTransparency, setReduceTransparency] = useState(false);
 
@@ -50,8 +49,6 @@ type GlassSurfaceProps = {
   interactive?: boolean;
 };
 
-// Superfície dos cards e painéis: vidro onde existe, cor sólida do tema onde não.
-// O raio e o recorte vêm do style de quem usa, nos dois casos.
 export function GlassSurface({
   children,
   style,

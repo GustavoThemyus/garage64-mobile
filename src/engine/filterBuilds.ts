@@ -15,9 +15,7 @@ export const HP_RANGES: { id: HpRangeId; label: string; min: number; max: number
 
 export type CompatibilityFilter = "all" | "compatible" | "warnings";
 
-// Todos os critérios são opcionais e se combinam (spec 11.5). Lista vazia, "any"
-// e "all" significam "não filtra por isso". Dentro de uma lista é OU (Nissan ou
-// Toyota); entre critérios diferentes é E.
+// Lista vazia, "any" e "all" não filtram. É OU dentro de uma lista e E entre critérios.
 export type BuildFilterCriteria = {
   carIds: number[];
   brands: string[];

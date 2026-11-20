@@ -3,16 +3,8 @@ import { BuildConfig, CalculatedBuild, PartField } from "../types/build";
 import { Car } from "../types/car";
 import { getFactoryConfig } from "./config";
 
-// Modelo de cálculo da v1. Não são dados reais de performance (spec 12): é um
-// modelo simples e previsível. Toda fórmula é uma RAZÃO em relação à configuração
-// de fábrica, então a configuração de fábrica reproduz o mock exatamente.
-//
-//   hp          = hpBase x (cilindrada/base)^0.9 x (aspiração/base) x (válvulas/base)^0.3 x NOS
-//   torque      = torqueBase x (hp/hpBase)^0.95
-//   peso        = pesoBase + 55 kg por litro extra + equipamento + peças + AWD
-//   topSpeed    = topSpeedBase x (hp/hpBase)^(1/3)        (limitada pelo arrasto)
-//   0-100       = tempoBase x sqrt((peso/hp)/(pesoBase/hpBase)) x câmbio x tração
-//   consumo     = consumoBase / (cilindrada^0.8 x aspiração x (peso/base)^0.3 x peças)
+// Modelo simples, não são dados reais (spec 12). Toda fórmula é uma razão contra a configuração de fábrica, então a
+// configuração de fábrica reproduz o mock exatamente. Fórmulas e coeficientes: docs/spec.md, seção 5.5.
 
 const NOS_POWER_FACTOR = 1.12;
 const WEIGHT_PER_EXTRA_LITER = 55;

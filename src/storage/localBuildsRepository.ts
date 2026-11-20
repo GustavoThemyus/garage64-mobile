@@ -4,12 +4,11 @@ import { Build } from "../types/build";
 import { BuildsRepository } from "./buildsRepository";
 import { parseBuilds } from "./parseBuilds";
 
-// Chave versionada: deixa mudar o formato no futuro sem ler lixo antigo.
+// chave versionada, pra poder mudar o formato
 const STORAGE_KEY = "garage64:builds:v1";
 
 export function createLocalBuildsRepository(): BuildsRepository {
-  // O AsyncStorage só guarda a lista inteira, então salvar é ler, mudar e gravar.
-  // Duas operações rápidas em paralelo se atropelariam, então vão numa fila.
+  // O AsyncStorage guarda a lista inteira: salvar é ler, mudar e gravar. A fila evita que duas operações rápidas se atropelem.
   let queue: Promise<unknown> = Promise.resolve();
   const enqueue = <T>(task: () => Promise<T>): Promise<T> => {
     const next = queue.then(task, task);

@@ -1,4 +1,3 @@
-// Medidas e tipografia compartilhadas. Não mudam entre claro e escuro.
 
 export const spacing = {
   xs: 4,

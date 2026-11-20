@@ -9,7 +9,6 @@ export type CompareMetricKey =
   | "consumption"
   | "weight";
 
-// Em hp, maior é melhor. Em aceleração (segundos até 100 km/h) e peso, menor é melhor.
 export type BetterWhen = "higher" | "lower";
 
 export type CompareMetric = {
@@ -74,7 +73,7 @@ export const COMPARE_METRICS: CompareMetric[] = [
 
 export type CompareSide = {
   value: number;
-  // 0 a 1, onde 1 é o melhor dos dois. É o comprimento da barra verde.
+  // 0 a 1; 1 é o melhor dos dois (comprimento da barra verde)
   score: number;
 };
 
@@ -83,7 +82,7 @@ export type MetricComparison = {
   a: CompareSide;
   b: CompareSide;
   winner: "a" | "b" | "tie";
-  // Diferença entre os dois, em % do maior valor.
+  // em % do maior valor
   gapPercent: number;
 };
 
@@ -92,7 +91,7 @@ function scoreOf(value: number, a: number, b: number, betterWhen: BetterWhen) {
     const best = Math.max(a, b);
     return best === 0 ? 1 : value / best;
   }
-  // Menor é melhor: o melhor é o menor valor, e quanto maior o valor, pior o score.
+  // menor é melhor: score = melhor valor / valor do carro
   const best = Math.min(a, b);
   return value === 0 ? 1 : best / value;
 }

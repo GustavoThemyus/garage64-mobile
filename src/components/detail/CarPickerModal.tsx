@@ -21,8 +21,7 @@ type CarPickerModalProps = {
   onClose: () => void;
 };
 
-// Lista de carros pra escolher o adversário do Compare. Fica dentro da própria
-// tela de detalhes (Modal) pra devolver a escolha sem passar estado entre rotas.
+// Fica dentro da própria tela (Modal) pra devolver a escolha sem passar estado entre rotas.
 export function CarPickerModal({
   visible,
   excludeCarId,

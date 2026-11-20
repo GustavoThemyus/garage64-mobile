@@ -19,8 +19,7 @@ type CompareBarProps = {
   side: "a" | "b";
 };
 
-// Uma barra por carro. O verde vai até o score do carro (1 = o melhor dos dois).
-// No carro pior, o trecho entre o score dele e o teto do outro fica vermelho.
+// O verde vai até o score do carro (1 = o melhor dos dois). No carro pior, o trecho até o teto do outro fica vermelho.
 function CompareBar({ name, comparison, side }: CompareBarProps) {
   const theme = useTheme();
   const { metric } = comparison;

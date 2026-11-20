@@ -12,14 +12,8 @@ function sectionTitle(section: FilterMenuSection): string {
   return current ? `${section.title}: ${current.label}` : section.title;
 }
 
-// O filtro como balão nativo do iOS: um UIMenu ancorado no botão do header. No
-// iOS 26 o sistema o abre em vidro, saindo do próprio botão, e posiciona e
-// recorta sozinho. Cada categoria é um submenu.
-//
-// Escolha múltipla (marca, país, tipo) usa unstable_keepPresented: o balão não
-// fecha a cada toque. Em contrapartida o iOS recria o menu a cada escolha, o que
-// fecha o submenu aberto e volta pro menu principal (limitação documentada pelo
-// Expo). Escolha única fecha o balão ao escolher, que é o esperado.
+// Escolha múltipla usa unstable_keepPresented: o balão não fecha a cada toque, mas o iOS recria o menu e o
+// submenu aberto volta ao menu principal (limitação documentada do Expo).
 export function NativeFilterMenu({ model }: { model: FilterMenuModel }) {
   return (
     <Stack.Toolbar placement="right">

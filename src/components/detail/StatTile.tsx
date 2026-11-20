@@ -7,11 +7,9 @@ import { useTheme } from "@/src/theme/useTheme";
 
 type StatTileProps = {
   stat: PerformanceStat;
-  // Diferença pra configuração de fábrica (só o configurador usa).
   delta?: Delta | null;
 };
 
-// Um número de performance em destaque (potência, torque, velocidade...).
 export function StatTile({ stat, delta }: StatTileProps) {
   const theme = useTheme();
 

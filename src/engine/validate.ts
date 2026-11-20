@@ -5,8 +5,7 @@ import { normalizeAspiration } from "./aspiration";
 import { calculateBuild } from "./calculate";
 import { getFactoryConfig } from "./config";
 
-// Valida a build contra as regras do próprio carro (car.rules, spec 5.3).
-// Nunca bloqueia: configuração inválida vira aviso e pode ser salva com ele.
+// Nunca bloqueia: configuração inválida vira aviso e ainda pode ser salva.
 export function validateBuild(car: Car, config: BuildConfig): BuildWarning[] {
   const { rules } = car;
   const factory = getFactoryConfig(car);

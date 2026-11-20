@@ -2,7 +2,6 @@ import { Link, Stack } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import { useTheme } from "@/src/theme/useTheme";
 
-// Tela de Not found. Ela aparece quando uma rota é inválida. Tem Stack, isso sginifica que ela vai por cima de todas as outras telas.
 export default function NotFoundScreen() {
   const theme = useTheme();
   return (
@@ -23,7 +22,6 @@ export default function NotFoundScreen() {
   );
 }
 
-// Estilização da página de Not found.
 const styles = StyleSheet.create({
   container: {
     flex: 1,

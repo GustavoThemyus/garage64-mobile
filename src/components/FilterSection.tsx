@@ -18,8 +18,6 @@ type FilterSectionProps = {
   onToggle: (value: string) => void;
 };
 
-// Uma categoria do painel de filtros: cabeçalho que expande e uma linha com
-// Switch por opção. Marca, país e tipo usam o mesmo componente.
 export function FilterSection({
   title,
   options,

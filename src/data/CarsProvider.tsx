@@ -13,9 +13,7 @@ import { CarsRepository, localCarsRepository } from "./carsRepository";
 
 type CarsContextValue = {
   cars: Car[];
-  // false enquanto o catálogo ainda está chegando.
   ready: boolean;
-  // Mensagem quando a carga falhou, senão null.
   error: string | null;
   getCar: (id: number) => Car | undefined;
   reload: () => void;
@@ -28,8 +26,6 @@ type CarsProviderProps = {
   repository?: CarsRepository;
 };
 
-// Fonte única do catálogo pro app inteiro. As telas leem daqui com useCars()
-// em vez de importar o mock, e assim o catálogo pode vir de qualquer lugar.
 export function CarsProvider({
   children,
   repository = localCarsRepository,
@@ -40,7 +36,7 @@ export function CarsProvider({
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    // Com catálogo inicial (mock) não há o que esperar na primeira carga.
+    // o catálogo inicial (mock) já está pronto na primeira carga
     if (attempt === 0 && repository.initialCars) return;
 
     let alive = true;

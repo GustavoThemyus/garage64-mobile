@@ -29,7 +29,6 @@ type CarFilterModelInput = {
   resultCount: number;
 };
 
-// Filtros do Catalog: marca, país e tipo.
 export function buildCarFilterModel({
   cars,
   filters,
@@ -89,8 +88,7 @@ const COMPATIBILITY_OPTIONS: { value: CompatibilityFilter; label: string }[] = [
   { value: "warnings", label: "With warnings" },
 ];
 
-// Filtros da tab Builds: carro base, marca, faixa de HP e compatibilidade. As
-// opções de carro e marca são só as dos carros que têm build salva.
+// As opções de carro e marca são só as dos carros que têm build salva.
 export function buildBuildFilterModel({
   cars,
   builds,

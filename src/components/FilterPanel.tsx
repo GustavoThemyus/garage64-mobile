@@ -10,15 +10,11 @@ type FilterPanelProps = {
   isOpen: boolean;
   onClose: () => void;
   onClear: () => void;
-  // false quando não há nada marcado: "Clear all" fica apagado.
   canClear: boolean;
   doneLabel: string;
   children: ReactNode;
 };
 
-// Casca dos painéis de filtro (Catalog e Builds): fundo que fecha ao tocar fora,
-// painel de vidro com rolagem e rodapé com "Clear all" e o botão de concluir.
-// Fica montada sempre pra a saída poder animar.
 export function FilterPanel({
   isOpen,
   onClose,
@@ -87,7 +83,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     zIndex: 90,
   },
-  // Popover no canto, sob o botão que o abriu. Não ocupa a largura toda.
   shadow: {
     position: "absolute",
     top: spacing.sm,

@@ -15,16 +15,14 @@ import { AppThemeProvider } from "@/src/theme/ThemeProvider";
 import { useThemeController } from "@/src/theme/useTheme";
 
 export {
-  // Captura erros lançados dentro da árvore de navegação.
   ErrorBoundary,
 } from "expo-router";
 
 export const unstable_settings = {
-  // Mantém a rota (tabs) como base da pilha ao recarregar numa tela empilhada.
+  // base da pilha ao recarregar numa tela empilhada
   anchor: "(tabs)",
 };
 
-// Segura a splash screen até o app estar pronto (tema carregado).
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -40,7 +38,6 @@ export default function RootLayout() {
 }
 
 function RootLayoutContent() {
-  // Sem fontes customizadas pra esperar: a splash sai assim que a árvore monta.
   useEffect(() => {
     SplashScreen.hideAsync();
   }, []);
@@ -51,8 +48,6 @@ function RootLayoutContent() {
 function RootLayoutNav() {
   const { scheme, colors } = useThemeController();
 
-  // O tema do React Navigation sai dos mesmos tokens do resto do app,
-  // então header, fundo e bordas nativos acompanham o tema escolhido.
   const navigationTheme = useMemo(() => {
     const base = scheme === "dark" ? DarkTheme : DefaultTheme;
     return {

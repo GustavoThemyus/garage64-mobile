@@ -10,7 +10,6 @@ import {
 import { Appearance, useColorScheme } from "react-native";
 import { colors, ThemeColors, ThemeScheme } from "./colors";
 
-// "system" segue o aparelho; "light" e "dark" forçam o esquema.
 export type ThemePreference = "system" | "light" | "dark";
 
 const STORAGE_KEY = "garage64:theme-preference";
@@ -28,15 +27,13 @@ function isPreference(value: unknown): value is ThemePreference {
   return value === "system" || value === "light" || value === "dark";
 }
 
-// Faz os componentes nativos (tab bar, header, vidro, alertas) seguirem a
-// preferência do app e não só a do sistema. Não existe na web, daí o try.
+// Faz os componentes nativos (tab bar, header, vidro) seguirem a preferência do app. Não existe na web.
 function applyNativePreference(preference: ThemePreference) {
   try {
     Appearance.setColorScheme(
       preference === "system" ? "unspecified" : preference,
     );
   } catch {
-    // sem suporte nessa plataforma, o tema do app continua funcionando
   }
 }
 
@@ -69,7 +66,7 @@ export function AppThemeProvider({ children }: { children: ReactNode }) {
     AsyncStorage.setItem(STORAGE_KEY, next).catch(() => {});
   }, []);
 
-  // O app nasceu escuro, então qualquer valor que não seja "light" vira escuro.
+  // o app nasceu escuro: tudo que não for "light" vira escuro
   const scheme: ThemeScheme =
     preference === "system"
       ? systemScheme === "light"
@@ -82,8 +79,7 @@ export function AppThemeProvider({ children }: { children: ReactNode }) {
     [preference, setPreference, scheme],
   );
 
-  // Segura a árvore até ler a preferência salva. A splash continua na tela
-  // porque RootLayout só a esconde depois de montar, então não pisca.
+  // segura a árvore até ler a preferência salva; a splash cobre o intervalo
   if (!ready) return null;
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

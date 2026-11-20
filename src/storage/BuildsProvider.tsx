@@ -36,8 +36,7 @@ export function BuildsProvider({
 }: BuildsProviderProps) {
   const [builds, setBuilds] = useState<Build[]>([]);
   const [ready, setReady] = useState(false);
-  // Última lista conhecida, lida de forma síncrona pelas ações. Evita perder uma
-  // alteração quando duas acontecem antes do React re-renderizar.
+  // Última lista, lida de forma síncrona pelas ações, pra duas alterações rápidas não se perderem.
   const latest = useRef<Build[]>([]);
 
   const adopt = useCallback((next: Build[]) => {
@@ -61,8 +60,7 @@ export function BuildsProvider({
     };
   }, [repository, adopt]);
 
-  // A tela muda na hora (otimista) e o repositório grava em seguida. Se a gravação
-  // falhar, a lista é relida do repositório pra tela não mostrar algo que não existe.
+  // Atualiza a tela na hora e grava depois; se a gravação falhar, relê a lista do repositório.
   const persist = useCallback(
     (operation: Promise<void>) => {
       operation.catch(() => {

@@ -5,8 +5,6 @@ import { radius, spacing, typography } from "@/src/theme/tokens";
 import { useTheme } from "@/src/theme/useTheme";
 import { BuildWarning } from "@/src/types/build";
 
-// Diz se o carro suporta a configuração (spec 5.3). Configuração inválida é só
-// um aviso: o usuário vê o que está errado e por quê, e ainda pode salvar.
 export function CompatibilityPanel({ warnings }: { warnings: BuildWarning[] }) {
   const theme = useTheme();
   const compatible = warnings.length === 0;

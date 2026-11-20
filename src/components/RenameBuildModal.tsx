@@ -20,8 +20,7 @@ type RenameBuildModalProps = {
   onClose: () => void;
 };
 
-// Alert.prompt só existe no iOS, então renomear usa um modal próprio que
-// funciona igual nas três plataformas.
+// Alert.prompt só existe no iOS; este modal funciona nas três plataformas.
 export function RenameBuildModal({
   visible,
   currentName,

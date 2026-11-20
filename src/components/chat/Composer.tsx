@@ -11,7 +11,6 @@ type ComposerProps = {
   disabled: boolean;
 };
 
-// Campo de mensagem com botão de enviar. O botão só acende com texto e sem envio em andamento.
 export function Composer({ value, onChange, onSend, disabled }: ComposerProps) {
   const theme = useTheme();
   const canSend = value.trim().length > 0 && !disabled;

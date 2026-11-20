@@ -2,7 +2,6 @@ import { ChoiceSection } from "@/src/components/ChoiceSection";
 import { FilterSection } from "@/src/components/FilterSection";
 import { FilterMenuSection } from "./types";
 
-// Desenha as seções de um FilterMenuModel dentro do FilterPanel.
 export function FilterPanelContent({ sections }: { sections: FilterMenuSection[] }) {
   return (
     <>

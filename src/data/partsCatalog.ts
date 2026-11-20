@@ -1,16 +1,15 @@
 import { AspirationId, PartField } from "../types/build";
 import { Car } from "../types/car";
 
-// O mock guarda só UM valor por carro em cada campo (o de fábrica). As opções
-// do configurador vêm daqui: toda lista começa com "Factory" (o texto do próprio
-// carro) e segue com upgrades que valem pra qualquer carro.
+// O mock tem um valor por carro em cada campo (o de fábrica). Toda lista começa com "Factory" (o texto do carro)
+// e segue com upgrades iguais pra todos.
 
 export type PartOption = {
   id: string;
   label: string;
-  // Variação de peso em kg em relação à peça de fábrica.
+  // delta de peso em kg contra a peça de fábrica
   weightDelta: number;
-  // Multiplicadores sobre o tempo de 0 a 100 e sobre o consumo (1 = sem efeito).
+  // multiplicadores do 0-100 e do consumo (1 = sem efeito)
   accelerationFactor: number;
   consumptionFactor: number;
 };
@@ -101,11 +100,11 @@ export function findPartOption(
 
 export type AspirationSpec = {
   label: string;
-  // Multiplicador de potência sobre um motor aspirado.
+  // multiplicador de potência sobre o aspirado
   power: number;
-  // Peso extra em kg do equipamento (turbo, compressor, intercooler).
+  // peso extra em kg do equipamento
   weight: number;
-  // Multiplicador de consumo (maior = bebe mais).
+  // multiplicador de consumo (maior bebe mais)
   consumption: number;
 };
 

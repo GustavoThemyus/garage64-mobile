@@ -1,7 +1,6 @@
 import { Alert, Platform } from "react-native";
 
-// Confirmação de ação destrutiva. Alert.alert não faz nada na web, então lá usa
-// o confirm do navegador.
+// Alert.alert não faz nada na web, então lá usa o confirm do navegador.
 export function confirmDestructive(
   title: string,
   message: string,

@@ -12,7 +12,6 @@ type ActionButtonProps = {
   disabled?: boolean;
 };
 
-// Botão de ação em largura total. Primário é amarelo, secundário é cinza do tema.
 export function ActionButton({
   label,
   onPress,

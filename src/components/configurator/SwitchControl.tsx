@@ -10,7 +10,6 @@ type SwitchControlProps = {
   onChange: (value: boolean) => void;
 };
 
-// Interruptor nativo da plataforma, sem texto "yes/no" (spec 5.1).
 export function SwitchControl({
   title,
   hint,

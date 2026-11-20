@@ -11,7 +11,6 @@ type LinkRowProps = {
   isLast?: boolean;
 };
 
-// Linha de link externo. Abre no navegador do sistema (nova aba na web).
 export function LinkRow({ label, url, isLast = false }: LinkRowProps) {
   const theme = useTheme();
 

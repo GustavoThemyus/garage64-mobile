@@ -7,8 +7,7 @@ export type Delta = {
   tone: DeltaTone;
 };
 
-// Diferença entre o valor da build e o de fábrica, com o sinal e se é melhor ou
-// pior (em aceleração e peso, descer é melhorar). Sem diferença visível, null.
+// Sem diferença visível devolve null. Em aceleração e peso, descer é melhorar.
 export function formatDelta(
   value: number,
   base: number,

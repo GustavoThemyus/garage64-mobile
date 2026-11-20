@@ -8,7 +8,6 @@ export function isFactoryAwd(car: Car): boolean {
   return /awd|4x4/i.test(car.specs.traction);
 }
 
-// Todo controle do configurador começa no valor de fábrica do carro (spec 5.1).
 export function getFactoryConfig(car: Car): BuildConfig {
   return {
     displacement: car.specs.displacement,
@@ -31,7 +30,7 @@ export type SliderRange = {
 
 export type ConfigRanges = {
   displacement: SliderRange;
-  // null quando o motor não tem válvulas (rotativo).
+  // null no motor rotativo, que não tem válvulas
   valves: SliderRange | null;
 };
 

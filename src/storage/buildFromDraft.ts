@@ -4,9 +4,7 @@ export function createBuildId(): string {
   return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 }
 
-// Transforma o rascunho do configurador numa Build. Com uma build existente
-// (edição) mantém o id e a data de criação. Função pura, de propósito: é a regra
-// que o backend também vai precisar aplicar, e assim dá pra testá-la sem o app.
+// Com uma build existente (edição) mantém o id e a data de criação. Pura, pra poder ser testada.
 export function buildFromDraft(
   draft: BuildDraft,
   existing?: Build,

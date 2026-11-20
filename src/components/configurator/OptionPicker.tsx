@@ -8,7 +8,6 @@ import { useTheme } from "@/src/theme/useTheme";
 export type PickerOption = {
   id: string;
   label: string;
-  // Marca a opção de fábrica.
   isFactory?: boolean;
 };
 
@@ -19,8 +18,7 @@ type OptionPickerProps = {
   onChange: (id: string) => void;
 };
 
-// Escolha única: exatamente uma opção ativa (spec 5.1). É uma lista de linhas e
-// não um segmented control porque os textos de fábrica (rodas, freios) são longos.
+// Lista de linhas e não segmented control: os textos de fábrica (rodas, freios) são longos.
 export function OptionPicker({
   title,
   options,
