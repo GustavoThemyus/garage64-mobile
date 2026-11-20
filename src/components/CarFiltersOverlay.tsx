@@ -141,7 +141,7 @@ export function CarFiltersOverlay({
 
                 <View
                   style={
-                    (styles.separatorLine, { backgroundColor: theme.separator })
+                    [styles.separatorLine, { backgroundColor: theme.separator }]
                   }
                 />
 
