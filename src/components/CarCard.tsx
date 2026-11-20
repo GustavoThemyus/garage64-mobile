@@ -1,7 +1,15 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import CountryFlag from "react-native-country-flag";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
+
+import { GlassSurface } from "@/src/components/GlassSurface";
+import { radius, spacing, typography } from "@/src/theme/tokens";
+import { useTheme } from "@/src/theme/useTheme";
 import { Car } from "../types/car";
-import { useTheme } from "../theme/useTheme";
 
 interface CarCardProps {
   car: Car;
@@ -11,107 +19,152 @@ interface CarCardProps {
 
 export default function CarCard({ car, onPress, cardWidth }: CarCardProps) {
   const theme = useTheme();
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
   return (
-    <TouchableOpacity
+    <Animated.View
       style={[
-        styles.card,
-        {
-          width: cardWidth,
-          backgroundColor: theme.surface,
-          borderColor: theme.border,
-        },
+        styles.shadow,
+        { width: cardWidth, shadowColor: theme.shadow },
+        animatedStyle,
       ]}
-      onPress={onPress}
     >
-      <View style={styles.imageContainer}>
-        <Image source={{ uri: car.info.image }} style={styles.image} />
-        <View style={[styles.flagBadge, { shadowColor: theme.shadow }]}>
-          <CountryFlag isoCode={car.info.countryCode.toLowerCase()} size={10} />
-        </View>
-      </View>
-      <Text
-        style={[styles.model, { color: theme.textSecondary }]}
-        numberOfLines={1}
-        ellipsizeMode="tail"
+      <Pressable
+        onPress={onPress}
+        onPressIn={() => {
+          scale.value = withSpring(0.97, { damping: 18, stiffness: 320 });
+        }}
+        onPressOut={() => {
+          scale.value = withSpring(1, { damping: 18, stiffness: 320 });
+        }}
+        accessibilityRole="button"
+        accessibilityLabel={`${car.info.brand} ${car.info.model}`}
       >
-        {car.info.model}
-      </Text>
-      <Text style={[styles.details, { color: theme.textSecondary }]}>
-        {car.info.brand} - {car.info.year}
-      </Text>
-      <View
-        style={[styles.typeBadge, { backgroundColor: theme.badgeBackground }]}
-      >
-        <Text style={[styles.typeText, { color: theme.badgeText }]}>
-          {car.specs.type}
-        </Text>
-      </View>
-      <Text style={[styles.power, { color: theme.accent }]}>
-        {car.performance.hp} HP
-      </Text>
-    </TouchableOpacity>
+        <GlassSurface style={styles.card} interactive>
+          <View style={styles.imageWrap}>
+            <Image source={{ uri: car.info.image }} style={styles.image} />
+            <View
+              style={[
+                styles.flagBadge,
+                { backgroundColor: theme.surfaceTranslucent },
+              ]}
+            >
+              <CountryFlag
+                isoCode={car.info.countryCode.toLowerCase()}
+                size={10}
+              />
+            </View>
+          </View>
+
+          <Text
+            style={[styles.model, { color: theme.textPrimary }]}
+            numberOfLines={1}
+          >
+            {car.info.model}
+          </Text>
+          <Text
+            style={[styles.details, { color: theme.textSecondary }]}
+            numberOfLines={1}
+          >
+            {car.info.brand} · {car.info.year}
+          </Text>
+
+          <View style={styles.footer}>
+            <View
+              style={[
+                styles.typeChip,
+                { backgroundColor: theme.badgeBackground },
+              ]}
+            >
+              <Text
+                style={[styles.typeText, { color: theme.badgeText }]}
+                numberOfLines={1}
+              >
+                {car.specs.type}
+              </Text>
+            </View>
+            <Text style={[styles.power, { color: theme.accentText }]}>
+              {car.performance.hp}
+              <Text style={styles.powerUnit}> HP</Text>
+            </Text>
+          </View>
+        </GlassSurface>
+      </Pressable>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 5,
-    padding: 10,
-    alignItems: "center",
-    borderWidth: 1,
+  // A sombra fica num wrapper porque o card recorta o conteúdo (overflow hidden),
+  // e no iOS isso cortaria a própria sombra.
+  shadow: {
+    borderRadius: radius.lg,
+    borderCurve: "continuous",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.22,
+    shadowRadius: 12,
+    elevation: 4,
   },
-
+  card: {
+    borderRadius: radius.lg,
+    borderCurve: "continuous",
+    overflow: "hidden",
+    padding: spacing.md,
+    gap: spacing.xs,
+  },
+  imageWrap: {
+    marginBottom: spacing.sm,
+  },
   image: {
     width: "100%",
-    aspectRatio: 16 / 9,
-    borderRadius: 5,
+    aspectRatio: 16 / 10,
+    borderRadius: 12,
+    borderCurve: "continuous",
     resizeMode: "cover",
   },
-
-  imageContainer: {
-    position: "relative",
-    width: "100%",
-    marginBottom: 10,
-  },
-
   flagBadge: {
     position: "absolute",
-    top: 4,
-    right: 4,
-    padding: 4,
-    borderRadius: 4,
-    elevation: 4,
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+    top: spacing.sm,
+    right: spacing.sm,
+    padding: spacing.xs,
+    borderRadius: radius.sm,
+    borderCurve: "continuous",
   },
-
-  typeBadge: {
-    borderRadius: 10,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    marginTop: 4,
-  },
-
-  typeText: {
-    fontSize: 10,
-    fontWeight: "semibold",
-    textTransform: "uppercase",
-  },
-
   model: {
-    fontSize: 17,
-    fontWeight: "bold",
+    ...typography.headline,
   },
-
   details: {
-    fontSize: 13,
+    ...typography.label,
   },
-
+  footer: {
+    marginTop: spacing.sm,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing.sm,
+  },
+  typeChip: {
+    flexShrink: 1,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+  },
+  typeText: {
+    ...typography.eyebrow,
+    fontSize: 10,
+    letterSpacing: 0.5,
+  },
   power: {
-    fontSize: 18,
-    marginBottom: 2,
-    marginTop: 10,
-    fontWeight: "bold",
+    flexShrink: 0,
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  powerUnit: {
+    fontSize: 12,
+    fontWeight: "600",
   },
 });
