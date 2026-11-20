@@ -1,7 +1,7 @@
 # Garage64: plano de deploy
 
 > Objetivo: qualquer pessoa abre o app no celular com **um link**, sem conta e sem instalar nada da loja.
-> Este documento é um plano. Nada daqui foi executado ainda, e o que depende de conta do autor está marcado.
+> A configuração que não depende de conta já está no repositório (seção 1.1). O que falta depende de contas do autor e está marcado.
 
 ---
 
@@ -20,20 +20,36 @@ Hoje o app não precisa de backend. Por isso o deploy tem duas partes que não d
 
 Ordem recomendada: **A, B, F, D, E, C.**
 
+### 1.1 O que já está pronto no repositório
+
+| Arquivo | Para quê |
+| --- | --- |
+| `app.json` | `web.output: "single"`, `android.package` e `ios.bundleIdentifier` (`com.gustavothemyus.garage64`, **provisório**, ver seção 9) |
+| `public/index.html` | página base da web: manifesto, `apple-touch-icon`, cor de fundo antes do JavaScript |
+| `public/manifest.json` + ícones | PWA: "Adicionar à tela inicial" |
+| `vercel.json` | pasta `dist` e a rewrite de página única |
+| `eas.json` | perfil `preview` que gera APK, e `development` e `production` |
+| `.env.example` | variáveis `EXPO_PUBLIC_*` que ligam a API e o Supabase |
+| `src/data/carsRepository.ts` | o catálogo vem de uma interface; hoje é o mock, depois vira o Supabase |
+| `src/storage/buildsRepository.ts` | as builds vêm de uma interface por item (`list`, `save`, `remove`) |
+| `src/services/assistant.ts` | serviço HTTP do Assistant, ligado quando `EXPO_PUBLIC_API_URL` existe |
+
+O build da web foi exportado e conferido: `dist/` sai com `index.html`, manifesto, ícones e o bundle.
+
 ---
 
 ## 2. Etapa A: link web (a que atende "qualquer pessoa")
 
 O app roda na web (`npm run web`), então o link é um site estático.
 
-**Ajustes antes do primeiro deploy**
+**Ajustes (já feitos)**
 
-1. `app.json`: trocar `web.output` de `"static"` para `"single"` (um `index.html`, app de página única). O padrão do Expo é `single`. Em `static` cada rota gera um HTML, e como o tema só monta depois de ler a preferência salva, esse HTML sairia vazio.
-2. PWA, pra funcionar o "Adicionar à tela inicial":
-   - criar a pasta `public/` com `manifest.json`, `logo192.png` e `logo512.png` (o Expo copia `public/` pra `dist/`; evitar `public/assets/`)
-   - rodar `npx expo customize public/index.html` e acrescentar `<link rel="manifest" href="/manifest.json" />`
-   - a doc do Expo não descreve o "Adicionar à tela inicial" do iOS. No Safari ele é do próprio sistema (Compartilhar, Adicionar à Tela de Início) e funciona com o manifest e o ícone.
-3. Não registrar service worker por enquanto. A doc do Expo avisa que cache agressivo atrapalha atualização.
+1. `web.output` está em `"single"` (um `index.html`, app de página única). Em `static` cada rota geraria um HTML, e como o tema só monta depois de ler a preferência salva, esse HTML sairia vazio.
+2. PWA: `public/manifest.json`, os ícones e `public/index.html` com o link do manifesto. O Expo copia `public/` pra `dist/`.
+   - A doc do Expo não descreve o "Adicionar à tela inicial" do iOS. No Safari ele é do próprio sistema (Compartilhar, Adicionar à Tela de Início) e usa o manifesto e o `apple-touch-icon`.
+3. Sem service worker por enquanto. A doc do Expo avisa que cache agressivo atrapalha atualização.
+
+**O que falta (precisa da sua conta):** criar o projeto na Vercel apontando pro repositório e conferir o checklist de aceite abaixo.
 
 **Build e hospedagem**
 
@@ -44,14 +60,8 @@ npx expo serve              # conferir em http://localhost:8081 antes de publica
 
 Hospedagem sugerida: **Vercel** (grátis). Segundo a doc do Expo:
 
-- `vercel.json` na raiz:
-  ```json
-  {
-    "outputDirectory": "dist",
-    "rewrites": [{ "source": "/:path*", "destination": "/" }]
-  }
-  ```
-- Comando de build: `npx expo export -p web`.
+- `vercel.json` na raiz (já criado): `outputDirectory` é `dist` e há uma rewrite de `/:path*` para `/`.
+- Comando de build na Vercel: `npx expo export -p web`.
 - A rewrite existe porque `single` é uma página só: sem ela, abrir `/builds` direto dá 404.
 
 Alternativas documentadas pelo Expo: Netlify (`public/_redirects` com `/*    /index.html   200`), Firebase Hosting, AWS Amplify, GitHub Pages e a hospedagem do próprio Expo. Cloudflare Pages não aparece na doc do Expo, então não está verificado.
@@ -75,19 +85,11 @@ Alternativas documentadas pelo Expo: Netlify (`public/_redirects` com `/*    /in
 
 ## 3. Etapa B: APK Android
 
+O `eas.json` já existe com o perfil `preview` em APK, e o `app.json` já tem `android.package`.
+
 1. Instalar e entrar: `npm install --global eas-cli`, `eas login`.
-2. `eas build:configure` cria o `eas.json`. Ajustar o perfil `preview` para APK:
-   ```json
-   {
-     "build": {
-       "preview": {
-         "distribution": "internal",
-         "android": { "buildType": "apk" }
-       }
-     }
-   }
-   ```
-3. `app.json`: definir `android.package` (ex.: `com.gustavothemyus.garage64`). A doc do Expo que li não afirma que é obrigatório, mas o EAS pede esse identificador e ele não muda depois de publicado, então decidir o nome com calma.
+2. `eas init` liga o projeto à sua conta Expo (grava o `projectId` no `app.json`).
+3. Conferir o `android.package` (hoje `com.gustavothemyus.garage64`). A doc do Expo que li não afirma que é obrigatório, mas o EAS pede esse identificador e ele não muda depois de publicado.
 4. `eas build -p android --profile preview`. A página do build tem o botão **Install** e o link do APK, que dá pra mandar por mensagem. No celular é preciso permitir "instalar apps desconhecidos".
 
 **Atualizar sem gerar APK novo (opcional)**
@@ -140,7 +142,11 @@ Até aqui o iPhone usa a etapa A. Pra ter o app nativo, com o vidro líquido de 
    ```
 3. Seed: script que lê `src/data/carsMoch.ts` e insere os 14 carros.
 4. Auth anônima (a spec §11 item 3 define builds anônimas na v1): ligar "Anonymous sign-ins" no painel e chamar `supabase.auth.signInAnonymously()` no primeiro uso.
-5. No app, trocar `src/storage/buildsStorage.ts` por chamadas ao Supabase mantendo as mesmas funções (`loadBuilds`, `saveBuilds`), e fazer uma importação única das builds que já estão no AsyncStorage.
+5. No app a troca é uma implementação nova de cada interface, sem mexer em tela:
+   - `BuildsRepository` (`src/storage/buildsRepository.ts`): `list` vira `select`, `save` vira `upsert` e `remove` vira `delete`. Passar a nova implementação ao `BuildsProvider` em `app/_layout.tsx`.
+   - `CarsRepository` (`src/data/carsRepository.ts`): `getCars` lê a tabela `cars` e devolve `row.data`. Passar ao `CarsProvider`. Sem `initialCars`, as telas já mostram "Loading catalog" e o erro com a opção de tentar de novo.
+   - Importar uma vez as builds que já estão no AsyncStorage (`localBuildsRepository.list()`) na primeira vez que a pessoa entrar.
+6. Instalar `@supabase/supabase-js` e criar o cliente só quando `hasSupabase` (`src/config/env.ts`) for verdadeiro.
 
 Variáveis no app (todas públicas por desenho, a segurança vem do RLS): `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`.
 
@@ -151,7 +157,14 @@ Variáveis no app (todas públicas por desenho, a segurança vem do RLS): `EXPO_
 Repositório separado (`garage64-api`) na Vercel. Duas responsabilidades, que são as que justificam o backend (spec §11 item 4):
 
 - `POST /api/calc`: recebe `{ carId, config }` e devolve o resultado. Usa o mesmo código de `src/engine` (a assinatura de `evaluateBuild` já é a do contrato). O app passa a chamar a API no lugar de rodar local.
-- `POST /api/assistant`: recebe o histórico e a mensagem, chama o LLM e devolve o texto. Troca a implementação de `src/services/assistant.ts`, que hoje recusa tudo.
+- `POST /api/assistant`: recebe o histórico e a mensagem, chama o LLM e devolve o texto. O app já fala este contrato (`createHttpAssistantService`, ligado quando `EXPO_PUBLIC_API_URL` existe):
+  ```
+  corpo:    { "messages": [{ "role": "user" | "assistant", "text": string }] }
+            (histórico em ordem, terminando na mensagem nova do usuário)
+  resposta: 200 { "reply": string }
+  erro:     qualquer status diferente de 200
+  ```
+  Sem a variável o chat segue avisando que está offline.
 
 Variáveis só no servidor: `SUPABASE_SERVICE_ROLE_KEY`, `LLM_API_KEY`. No app só `EXPO_PUBLIC_API_URL`.
 
@@ -193,7 +206,7 @@ Pendência independente de backend: **hospedar as imagens dos carros**. Hoje sã
 Contas e decisões que ninguém mais pode tomar:
 
 1. Criar contas grátis na **Vercel**, no **Expo** e no **Supabase**.
-2. Decidir o nome do pacote Android (`android.package`), porque não muda depois.
+2. Confirmar o identificador do app. Está como `com.gustavothemyus.garage64` no `app.json` (`android.package` e `ios.bundleIdentifier`), e **não muda depois de publicado**. Se quiser outro, troque antes do primeiro build.
 3. Escolher o provedor de LLM e gerar a chave (só na etapa E).
 4. Decidir se a etapa C (iOS nativo, US$ 99 por ano) vale a pena.
 

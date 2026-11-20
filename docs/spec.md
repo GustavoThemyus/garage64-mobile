@@ -66,7 +66,7 @@ Toque no card → abre **Car Detail**.
 
 ### 4.1.1 Filtros
 
-Botão de filtro no header do Catalog abre um painel por cima da lista, com três categorias: **marca**, **país** e **tipo**. As opções saem do próprio catálogo, então um carro novo aparece nos filtros sozinho. O país é mostrado pelo nome (Japan), não pelo código (JP).
+Botão de filtro no header do Catalog, com três categorias: **marca**, **país** e **tipo**. No iOS abre um **balão de menu nativo** ancorado no botão, com um submenu por categoria, o título "N cars" no topo e "Clear all" no fim. No Android e na web abre um **painel** em popover no canto, sob o botão, com as mesmas opções. As opções saem do próprio catálogo, então um carro novo aparece nos filtros sozinho. O país é mostrado pelo nome (Japan), não pelo código (JP).
 
 **Regra de combinação:**
 
@@ -74,7 +74,7 @@ Botão de filtro no header do Catalog abre um painel por cima da lista, com trê
 - **Entre categorias é E.** Marcar Nissan, Toyota e Sports Coupe mostra só os Sports Coupe dessas duas marcas.
 - **Categoria sem nada marcado não filtra.** Sem nenhum filtro, aparecem todos os carros.
 
-O painel fecha tocando fora ou em "Show N cars". "Clear all" desmarca tudo.
+No painel (Android e web), fecha tocando fora ou em "Show N cars". "Clear all" desmarca tudo nos dois. No balão do iOS a escolha múltipla não fecha o menu a cada toque, mas o iOS recria o menu e o submenu aberto volta pro menu principal (limitação documentada do Expo). Escolha única fecha o balão ao escolher.
 
 ### 4.2 Car Detail
 
@@ -217,7 +217,7 @@ Tocar no card abre o configurador em modo edição. As builds aparecem da mais r
 - **Renomear** builds (lápis no card, abre um modal)
 - **Excluir** builds (lixeira no card, pede confirmação)
 
-**Critérios de filtro** (todos opcionais e combináveis, seção 11 item 5): carro base, marca, faixa de HP e compatibilidade.
+**Critérios de filtro** (todos opcionais e combináveis, seção 11 item 5): carro base, marca, faixa de HP e compatibilidade. Usam o mesmo balão (iOS) e o mesmo painel (Android e web) do Catalog.
 
 - Carro base e marca: múltipla escolha, OU dentro do critério. As opções são só as dos carros que têm build salva.
 - Faixa de HP, escolha única: Any, Under 200, 200 to 300, 300 to 400, 400 and up. Cada faixa é `[min, max)`: 300 HP cai em "300 to 400".
@@ -240,7 +240,7 @@ A tela (lista de mensagens, campo de texto, estado de carregando, sugestões) fa
 
 ## 8. Tab: Settings
 
-- **Theme** — System, Light ou Dark. System segue o aparelho; Light e Dark forçam o esquema. A escolha é salva no aparelho
+- **Theme** — System, Light ou Dark. System segue o aparelho; Light e Dark forçam o esquema. A escolha é salva no aparelho. No iOS o seletor é o controle segmentado nativo do sistema (Liquid Glass no iOS 26); no Android e na web é uma versão em JS
 - **About the project** — descrição do Garage64
 - **About the creator** — perfil do autor
 - **Links** — links pessoais/profissionais do autor
@@ -259,7 +259,11 @@ Consequência prática: nenhuma cor pode ser hardcoded em componente. Todo valor
 
 **Amarelo no claro.** O amarelo de preenchimento (botões, switch, barras) é o mesmo nos dois temas. Mas o amarelo puro não tem contraste sobre branco, então o **texto e os ícones** em amarelo usam um âmbar mais escuro no tema claro (token `accentText`).
 
-**Visual iOS.** No iOS 26+ o app usa o Liquid Glass do sistema: a tab bar flutuante nativa, os botões do header e as superfícies de card e de painel. Onde o vidro não existe (Android, web, iOS anterior ao 26, ou "Reduzir transparência" ligado) as superfícies caem numa cor sólida do tema. Conteúdo (listas de specs, textos) fica em superfície sólida; o vidro é pra controles e cards interativos.
+**Visual iOS.** No iOS 26+ o app usa o Liquid Glass do sistema na tab bar flutuante nativa, nos botões do header e no balão do filtro. Onde o vidro não existe (Android, web, iOS anterior ao 26, ou "Reduzir transparência" ligado) o painel de filtros cai numa cor sólida do tema. Conteúdo (listas de specs, textos) fica em superfície sólida; o vidro é só pra controles.
+
+**Cards.** Os cards de carro e de build não usam vidro. Têm a superfície própria do Garage64: preenchimento em degradê sutil e borda de 1 pt em degradê (clara no canto superior esquerdo, sumindo no inferior direito), igual em todas as plataformas. A estrutura do card não pode depender do conteúdo: nome e marca em uma linha, tipo e HP sempre em linhas próprias no rodapé, e os cards de uma mesma linha da grade têm sempre a mesma altura.
+
+**Feedback de toque.** Ao pressionar, o card clareia por inteiro e não escala. O preenchimento sobe em cerca de 150 ms, segura enquanto o dedo está em cima e volta em cerca de 120 ms. A intensidade é bem sutil, em torno de um terço da medida na referência.
 
 **Web.** A web usa uma barra de tabs clássica, pintada com os mesmos tokens, e o botão de filtro vai no header como componente. O vidro e a tab bar nativa só existem nos apps nativos.
 
