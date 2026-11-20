@@ -14,6 +14,7 @@ Vale pra toda sessão, sem exceção, mesmo que a instrução não seja repetida
 - **Commits:** Conventional Commits (`feat`, `fix`, `docs`, `refactor`, `chore`). Um commit faz uma coisa só.
 - **Branches:** GitHub Flow. `main` + branches temporárias no padrão `tipo/descricao-curta`.
 - **Cores:** nenhuma cor hardcoded em componente. Tudo sai do objeto de tema central.
+- **Comentários:** só o porquê que não é óbvio (limitação, regra de negócio, contorno). Curtos, em português. Nada que repita o que o código já diz.
 
 ---
 
@@ -65,6 +66,7 @@ O comportamento do app está especificado em `docs/spec.md`, em português. O pl
 - `app/(tabs)/_layout.tsx` usa `NativeTabs`: no iOS 26+ é a barra flutuante de vidro do sistema (forma e cápsula não são configuráveis). `_layout.web.tsx` é a barra clássica da web, porque o `NativeTabs` cai num fallback simples ali.
 - Cada tab é um grupo com **o próprio `Stack`**, que é quem dá o header: `(catalog)`, `(builds)`, `(assistant)`, `(settings)`. As opções comuns (título grande, cores) vêm de `src/navigation/useTabStackOptions.ts`.
 - Pra o título grande colapsar ao rolar, e pro sistema desenhar o desfoque sob o header, **a lista da tela precisa ser o primeiro filho da tela** (um Fragment, não uma `View` embrulhando). Foi a causa do título sobreposto no Catalog.
+- O título do botão de voltar do iOS vem do `title` da tela anterior. `app/_layout.tsx` dá ao `(tabs)` um título dinâmico (`getFocusedRouteNameFromRoute` + `TAB_TITLES`); ao criar uma tab nova, inclua o nome dela ali.
 - `app/carDetails.tsx` e `app/configurator.tsx` ficam na raiz do Stack e cobrem a tab bar. O configurator recebe `carId` (nova build) ou `buildId` (editar).
 - Na web o app é uma página única (`web.output: "single"`) e o HTML base é `public/index.html`.
 
