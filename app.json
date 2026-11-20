@@ -14,7 +14,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#0b0b0b"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.gustavothemyus.garage64"
@@ -31,10 +31,10 @@
         {
           "image": "./assets/images/splash-icon.png",
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#0b0b0b",
           "dark": {
             "image": "./assets/images/splash-icon.png",
-            "backgroundColor": "#131313"
+            "backgroundColor": "#0b0b0b"
           }
         }
       ]
