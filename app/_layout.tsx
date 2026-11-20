@@ -1,5 +1,3 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import {
   DarkTheme,
@@ -24,7 +22,7 @@ export const unstable_settings = {
   anchor: "(tabs)",
 };
 
-// Segura a splash screen até as fontes carregarem.
+// Segura a splash screen até o app estar pronto (tema carregado).
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -36,20 +34,10 @@ export default function RootLayout() {
 }
 
 function RootLayoutContent() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-    ...FontAwesome.font,
-  });
-
+  // Sem fontes customizadas pra esperar: a splash sai assim que a árvore monta.
   useEffect(() => {
-    if (error) throw error;
-  }, [error]);
-
-  useEffect(() => {
-    if (loaded) SplashScreen.hideAsync();
-  }, [loaded]);
-
-  if (!loaded) return null;
+    SplashScreen.hideAsync();
+  }, []);
 
   return <RootLayoutNav />;
 }

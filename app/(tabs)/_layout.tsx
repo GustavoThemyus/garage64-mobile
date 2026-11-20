@@ -1,40 +1,52 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Tabs } from "expo-router";
-import React from "react";
+import { NativeTabs } from "expo-router/native-tabs";
 
-import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 import { useTheme } from "@/src/theme/useTheme";
 
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>["name"];
-  color: React.ComponentProps<typeof FontAwesome>["color"];
-}) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
-}
-
+// Tab bar nativa. No iOS 26+ o sistema desenha a barra flutuante de vidro, com
+// a cápsula no item selecionado: forma e fundo não são configuráveis, só a cor
+// do item ativo. No Android vira a barra Material. A web usa _layout.web.tsx.
 export default function TabLayout() {
   const theme = useTheme();
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: theme.accent,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
-      }}
-    >
-      <Tabs.Screen // Primeiro botão clicável da primeira tab no footer
-        name="index" // É o ID da tab, que tem que ser o mesmo nome do arquivo dessa tab
-        options={{
-          title: "Catalog", // Título da tab no header
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="code" color={color as string} />
-          ), // Propriedade que retorna o ícone do botão pra acessar essa aba. O expo chama ela e já define a cor padrão quando tá ativa/inativa
-          // Propriedade que retorna o componente que será exibido na direita do header
-        }}
-      />
-    </Tabs>
+    <NativeTabs tintColor={theme.accentText}>
+      <NativeTabs.Trigger name="(catalog)">
+        <NativeTabs.Trigger.Label>Catalog</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "car", selected: "car.fill" }}
+          md="directions_car"
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="(builds)">
+        <NativeTabs.Trigger.Label>Builds</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{
+            default: "wrench.and.screwdriver",
+            selected: "wrench.and.screwdriver.fill",
+          }}
+          md="build"
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="(assistant)">
+        <NativeTabs.Trigger.Label>Assistant</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{
+            default: "bubble.left.and.bubble.right",
+            selected: "bubble.left.and.bubble.right.fill",
+          }}
+          md="chat"
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="(settings)">
+        <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "gearshape", selected: "gearshape.fill" }}
+          md="settings"
+        />
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }

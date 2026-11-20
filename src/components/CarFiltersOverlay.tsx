@@ -41,6 +41,9 @@ export function CarFiltersOverlay({
   const itemsFilterColor = theme.textPrimary;
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
+  // O botão que abre o painel vive no header (Stack.Toolbar); fechado, não renderiza nada.
+  if (!isOpen) return null;
+
   function handleToggleMenu() {
     onToggle(); // Chama a função que avisa a Home para abrir/fechar
   }
