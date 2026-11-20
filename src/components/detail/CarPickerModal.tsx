@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 
-import { carsMoch } from "@/src/data/carsMoch";
+import { useCars } from "@/src/data/CarsProvider";
 import { radius, spacing, typography } from "@/src/theme/tokens";
 import { useTheme } from "@/src/theme/useTheme";
 
@@ -31,7 +31,8 @@ export function CarPickerModal({
   onClose,
 }: CarPickerModalProps) {
   const theme = useTheme();
-  const cars = carsMoch.filter((car) => car.info.id !== excludeCarId);
+  const { cars: allCars } = useCars();
+  const cars = allCars.filter((car) => car.info.id !== excludeCarId);
 
   return (
     <Modal
@@ -115,7 +116,7 @@ const styles = StyleSheet.create({
   },
   title: {
     ...typography.headline,
-    fontSize: 20,
+    fontSize: 22,
   },
   cancel: {
     ...typography.headline,

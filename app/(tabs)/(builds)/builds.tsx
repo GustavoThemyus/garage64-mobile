@@ -1,29 +1,26 @@
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet } from "react-native";
 
 import { BuildCard } from "@/src/components/BuildCard";
-import { BuildFiltersPanel } from "@/src/components/BuildFiltersPanel";
 import { EmptyState } from "@/src/components/EmptyState";
-import { FilterToolbarButton } from "@/src/components/FilterToolbarButton";
+import { FilterControl } from "@/src/components/filters/FilterControl";
+import { buildBuildFilterModel } from "@/src/components/filters/filterModels";
 import { RenameBuildModal } from "@/src/components/RenameBuildModal";
-import { carsMoch } from "@/src/data/carsMoch";
+import { useCars } from "@/src/data/CarsProvider";
 import {
   BuildFilterCriteria,
   EMPTY_BUILD_FILTERS,
   filterBuilds,
-  hasActiveBuildFilters,
 } from "@/src/engine/filterBuilds";
 import { useBuilds } from "@/src/storage/BuildsProvider";
 import { spacing } from "@/src/theme/tokens";
-import { useTheme } from "@/src/theme/useTheme";
 import { Build } from "@/src/types/build";
 import { confirmDestructive } from "@/src/utils/confirm";
 
 export default function BuildsScreen() {
-  const theme = useTheme();
+  const { cars, getCar } = useCars();
   const { builds, ready, renameBuild, deleteBuild } = useBuilds();
-  const [panelOpen, setPanelOpen] = useState(false);
   const [criteria, setCriteria] = useState<BuildFilterCriteria>(EMPTY_BUILD_FILTERS);
   const [renaming, setRenaming] = useState<Build | null>(null);
 
@@ -33,9 +30,18 @@ export default function BuildsScreen() {
     [builds],
   );
   const visible = useMemo(
-    () => filterBuilds(sorted, criteria, carsMoch),
-    [sorted, criteria],
+    () => filterBuilds(sorted, criteria, cars),
+    [sorted, criteria, cars],
   );
+
+  const filterModel = buildBuildFilterModel({
+    cars,
+    builds,
+    criteria,
+    onChange: setCriteria,
+    onClear: () => setCriteria(EMPTY_BUILD_FILTERS),
+    resultCount: visible.length,
+  });
 
   function handleDelete(build: Build) {
     confirmDestructive(
@@ -46,9 +52,8 @@ export default function BuildsScreen() {
     );
   }
 
-  if (!ready) {
-    return <View style={[styles.container, { backgroundColor: theme.background }]} />;
-  }
+  // Ainda lendo do disco: tela vazia na cor de fundo, sem piscar o estado vazio.
+  if (!ready) return null;
 
   if (builds.length === 0) {
     return (
@@ -59,13 +64,9 @@ export default function BuildsScreen() {
     );
   }
 
+  // Lista como primeiro filho da tela, pelo mesmo motivo do Catalog.
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <FilterToolbarButton
-        onPress={() => setPanelOpen((open) => !open)}
-        active={panelOpen || hasActiveBuildFilters(criteria)}
-      />
-
+    <>
       {visible.length === 0 ? (
         <EmptyState
           title="No builds match"
@@ -80,7 +81,7 @@ export default function BuildsScreen() {
           renderItem={({ item }) => (
             <BuildCard
               build={item}
-              car={carsMoch.find((car) => car.info.id === item.carId)}
+              car={getCar(item.carId)}
               onPress={() =>
                 router.push({
                   pathname: "/configurator",
@@ -94,15 +95,7 @@ export default function BuildsScreen() {
         />
       )}
 
-      <BuildFiltersPanel
-        isOpen={panelOpen}
-        onClose={() => setPanelOpen(false)}
-        onClear={() => setCriteria(EMPTY_BUILD_FILTERS)}
-        criteria={criteria}
-        onChange={setCriteria}
-        builds={builds}
-        resultCount={visible.length}
-      />
+      <FilterControl model={filterModel} />
 
       <RenameBuildModal
         visible={renaming !== null}
@@ -113,16 +106,13 @@ export default function BuildsScreen() {
         }}
         onClose={() => setRenaming(null)}
       />
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: spacing.lg,
-  },
   list: {
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     gap: spacing.md,
   },

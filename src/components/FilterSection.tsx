@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   countText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "700",
   },
   options: {

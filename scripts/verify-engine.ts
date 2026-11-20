@@ -8,10 +8,16 @@ import { calculateBuild } from "../src/engine/calculate";
 import { compareCars } from "../src/engine/compare";
 import { getConfigRanges, getFactoryConfig } from "../src/engine/config";
 import { EMPTY_BUILD_FILTERS, filterBuilds, hasActiveBuildFilters } from "../src/engine/filterBuilds";
+import { buildBuildFilterModel, buildCarFilterModel } from "../src/components/filters/filterModels";
+import { FilterCriteria } from "../src/data/filterCars";
 import { evaluateBuild } from "../src/engine/evaluate";
 import { validateBuild } from "../src/engine/validate";
+import { localCarsRepository } from "../src/data/carsRepository";
+import { createHttpAssistantService, AssistantUnavailableError, offlineAssistantService } from "../src/services/assistant";
+import { buildFromDraft } from "../src/storage/buildFromDraft";
+import { createMemoryBuildsRepository } from "../src/storage/buildsRepository";
 import { parseBuilds } from "../src/storage/parseBuilds";
-import { Build, PartField } from "../src/types/build";
+import { Build, BuildDraft, PartField } from "../src/types/build";
 
 let failures = 0;
 let checks = 0;
@@ -180,7 +186,148 @@ check("filterBuilds: hp range under 200 holds the stock Civic", ids(filterBuilds
 check("filterBuilds: criteria combine (AND)", ids(filterBuilds(all, { ...EMPTY_BUILD_FILTERS, brands: ["Honda"], compatibility: "compatible", hpRange: "200-300" }, carsMoch)) === "civic-boosted");
 check("filterBuilds: no match gives an empty list", filterBuilds(all, { ...EMPTY_BUILD_FILTERS, brands: ["Honda"], hpRange: "over-400" }, carsMoch).length === 0);
 
-console.log(`${checks - failures}/${checks} checks passed`);
-if (failures > 0) {
-  throw new Error(`${failures} engine check(s) failed`);
+// 16. Modelo de filtro: o balão nativo do iOS e o painel do Android/web leem o
+// mesmo modelo, então testar o modelo cobre os dois.
+const emptyCarFilters: FilterCriteria = { selectedBrand: [], selectedType: [], selectedCountry: [] };
+const calls: string[] = [];
+const carModel = buildCarFilterModel({
+  cars: carsMoch,
+  filters: emptyCarFilters,
+  onToggle: (category, value) => calls.push(`${category}:${value}`),
+  onClear: () => calls.push("clear"),
+  resultCount: 14,
+});
+check("filter model: catalog has brand, country and type", carModel.sections.map((x) => x.id).join(",") === "brand,country,type");
+check("filter model: result label is plural", carModel.resultLabel === "14 cars");
+check("filter model: one result is singular", buildCarFilterModel({ cars: carsMoch, filters: emptyCarFilters, onToggle: () => {}, onClear: () => {}, resultCount: 1 }).resultLabel === "1 car");
+check("filter model: nothing selected is inactive", !carModel.active && !carModel.canClear);
+check("filter model: brand options are the 13 distinct brands", carModel.sections[0].options.length === new Set(carsMoch.map((c) => c.info.brand)).size);
+check("filter model: country shows names, not codes", carModel.sections[1].options.some((o) => o.value === "JP" && o.label === "Japan"));
+const brandSection = carModel.sections[0];
+if (brandSection.kind === "multi") brandSection.onToggle("Nissan");
+check("filter model: toggling a brand reports the right category", calls.join() === "selectedBrand:Nissan");
+const selectedModel = buildCarFilterModel({ cars: carsMoch, filters: { ...emptyCarFilters, selectedBrand: ["Nissan"] }, onToggle: () => {}, onClear: () => {}, resultCount: 2 });
+check("filter model: a selection makes it active and clearable", selectedModel.active && selectedModel.canClear);
+check("filter model: selected state is passed to the section", selectedModel.sections[0].kind === "multi" && (selectedModel.sections[0] as any).selected.join() === "Nissan");
+
+let lastCriteria = EMPTY_BUILD_FILTERS;
+const buildModelFor = (criteria: typeof EMPTY_BUILD_FILTERS) =>
+  buildBuildFilterModel({ cars: carsMoch, builds: all, criteria, onChange: (next) => { lastCriteria = next; }, onClear: () => {}, resultCount: 3 });
+const buildModel = buildModelFor(EMPTY_BUILD_FILTERS);
+check("filter model: builds has car, brand, power and compatibility", buildModel.sections.map((x) => x.id).join(",") === "base-car,brand,power,compatibility");
+check("filter model: build car options only list cars with a build", buildModel.sections[0].options.map((o) => o.label).sort().join(",") === "Civic EG6,Skyline GT-R R34");
+check("filter model: build brand options only list brands with a build", buildModel.sections[1].options.map((o) => o.value).sort().join(",") === "Honda,Nissan");
+check("filter model: power has the five ranges", buildModel.sections[2].options.length === 5);
+const carSection = buildModel.sections[0];
+if (carSection.kind === "multi") carSection.onToggle(String(civic.info.id));
+check("filter model: toggling a base car converts the id back to a number", lastCriteria.carIds.join() === String(civic.info.id));
+const toggledOff = buildModelFor({ ...EMPTY_BUILD_FILTERS, carIds: [civic.info.id] }).sections[0];
+if (toggledOff.kind === "multi") toggledOff.onToggle(String(civic.info.id));
+check("filter model: toggling the same car again removes it", lastCriteria.carIds.length === 0);
+const powerSection = buildModel.sections[2];
+if (powerSection.kind === "single") powerSection.onChange("200-300");
+check("filter model: choosing a power range sets only that criterion", lastCriteria.hpRange === "200-300" && lastCriteria.compatibility === "all");
+
+// 12. Rascunho -> build: o id e a data nascem aqui, e editar não os troca.
+const draft: BuildDraft = {
+  carId: civic.info.id,
+  name: "  Weekend Civic  ",
+  config: civicFactory,
+  computed: evaluated.performance,
+  warnings: evaluated.warnings,
+};
+const created = buildFromDraft(draft, undefined, new Date("2026-03-01T10:00:00.000Z"), () => "id-1");
+check("draft: new build gets a generated id", created.id === "id-1");
+check("draft: new build gets the creation date", created.createdAt === "2026-03-01T10:00:00.000Z");
+check("draft: the name is trimmed", created.name === "Weekend Civic");
+const edited = buildFromDraft({ ...draft, id: created.id, name: "Renamed" }, created, new Date("2027-01-01T00:00:00.000Z"), () => "id-2");
+check("draft: editing keeps the id", edited.id === "id-1");
+check("draft: editing keeps the creation date", edited.createdAt === created.createdAt);
+check("draft: editing applies the new name", edited.name === "Renamed");
+
+// 13. Contrato do repositório de builds (a implementação em memória e a do
+// Supabase, no futuro, precisam se comportar igual).
+async function checkRepositoryContract() {
+  const repo = createMemoryBuildsRepository();
+  await repo.save(stock);
+  await repo.save(boosted);
+  check("repository: new builds go to the front", (await repo.list()).map((b) => b.id).join(",") === "civic-boosted,civic-stock");
+  await repo.save({ ...stock, name: "Renamed stock" });
+  const afterUpdate = await repo.list();
+  check("repository: saving an existing id updates, never duplicates", afterUpdate.length === 2 && afterUpdate.find((b) => b.id === "civic-stock")?.name === "Renamed stock");
+  await repo.remove("civic-boosted");
+  check("repository: remove deletes only that build", (await repo.list()).map((b) => b.id).join(",") === "civic-stock");
+  await repo.remove("does-not-exist");
+  check("repository: removing an unknown id is harmless", (await repo.list()).length === 1);
+  const seeded = createMemoryBuildsRepository([stock]);
+  const listed = await seeded.list();
+  listed.pop();
+  check("repository: list returns a copy", (await seeded.list()).length === 1);
 }
+
+// 14. Catálogo: o repositório local entrega os 14 carros já na carga inicial.
+async function checkCatalog() {
+  check("catalog: local repository has initial cars", localCarsRepository.initialCars?.length === carsMoch.length);
+  check("catalog: getCars matches the mock", (await localCarsRepository.getCars()).length === carsMoch.length);
+}
+
+// 15. Serviço do assistente: contrato HTTP e falhas, com fetch simulado.
+async function checkAssistant() {
+  const realFetch = globalThis.fetch;
+  let lastRequest: { url: string; body: any } | null = null;
+  const stub = (response: () => Promise<Response>) => {
+    globalThis.fetch = (async (url: any, init: any) => {
+      lastRequest = { url: String(url), body: JSON.parse(init.body) };
+      return response();
+    }) as typeof fetch;
+  };
+  const json = (status: number, body: unknown) => async () =>
+    new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+  const service = createHttpAssistantService("https://api.example.com");
+  const history = [
+    { id: "1", role: "user" as const, text: "hi" },
+    { id: "2", role: "assistant" as const, text: "offline", isError: true },
+    { id: "3", role: "assistant" as const, text: "hello" },
+  ];
+  const fails = async (run: () => Promise<string>) => {
+    try { await run(); return false; } catch (error) { return error instanceof AssistantUnavailableError; }
+  };
+
+  try {
+    stub(json(200, { reply: "Skyline answer" }));
+    check("assistant: returns the reply", (await service.sendMessage(history, "next")) === "Skyline answer");
+    const sent = lastRequest as unknown as { url: string; body: { messages: { role: string; text: string }[] } };
+    check("assistant: posts to /api/assistant", sent.url === "https://api.example.com/api/assistant");
+    check("assistant: ends with the new user message", sent.body.messages.at(-1)?.text === "next" && sent.body.messages.at(-1)?.role === "user");
+    check("assistant: error messages are not sent as history", !sent.body.messages.some((m) => m.text === "offline"));
+    check("assistant: only role and text are sent", sent.body.messages.every((m) => Object.keys(m).sort().join() === "role,text"));
+
+    stub(json(500, { reply: "x" }));
+    check("assistant: non-200 becomes AssistantUnavailableError", await fails(() => service.sendMessage([], "x")));
+    stub(json(200, { nope: true }));
+    check("assistant: a malformed body is rejected", await fails(() => service.sendMessage([], "x")));
+    stub(json(200, { reply: "" }));
+    check("assistant: an empty reply is rejected", await fails(() => service.sendMessage([], "x")));
+    stub(async () => { throw new TypeError("Network request failed"); });
+    check("assistant: a network failure becomes AssistantUnavailableError", await fails(() => service.sendMessage([], "x")));
+    check("assistant: the offline service always refuses", await fails(() => offlineAssistantService.sendMessage([], "x")));
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+}
+
+// As verificações assíncronas rodam dentro de main() porque o tsx compila o
+// projeto como CommonJS, que não aceita await no topo do arquivo. Se algo falhar,
+// a rejeição derruba o processo com código de saída 1.
+async function main() {
+  await checkRepositoryContract();
+  await checkCatalog();
+  await checkAssistant();
+
+  console.log(`${checks - failures}/${checks} checks passed`);
+  if (failures > 0) {
+    throw new Error(`${failures} engine check(s) failed`);
+  }
+}
+
+void main();

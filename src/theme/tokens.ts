@@ -18,13 +18,13 @@ export const radius = {
 
 // Pesos como string porque o React Native só aceita "400", "600", "700" etc.
 export const typography = {
-  title: { fontSize: 28, fontWeight: "700", letterSpacing: 0.3 },
+  title: { fontSize: 30, fontWeight: "700", letterSpacing: 0.3 },
   headline: { fontSize: 17, fontWeight: "600" },
-  body: { fontSize: 15, fontWeight: "400" },
-  label: { fontSize: 13, fontWeight: "500" },
-  caption: { fontSize: 12, fontWeight: "500" },
+  body: { fontSize: 17, fontWeight: "400" },
+  label: { fontSize: 15, fontWeight: "500" },
+  caption: { fontSize: 13, fontWeight: "500" },
   eyebrow: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "600",
     letterSpacing: 0.8,
     textTransform: "uppercase",

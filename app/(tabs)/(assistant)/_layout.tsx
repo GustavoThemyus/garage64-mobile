@@ -7,7 +7,10 @@ export default function AssistantLayout() {
 
   return (
     <Stack screenOptions={options}>
-      <Stack.Screen name="assistant" options={{ title: "Assistant" }} />
+      <Stack.Screen
+        name="assistant"
+        options={{ title: "Assistant", headerLargeTitle: false }}
+      />
     </Stack>
   );
 }

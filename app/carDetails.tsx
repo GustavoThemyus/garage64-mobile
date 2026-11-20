@@ -10,7 +10,7 @@ import { InfoRow } from "@/src/components/detail/InfoRow";
 import { SectionCard } from "@/src/components/detail/SectionCard";
 import { StatTile } from "@/src/components/detail/StatTile";
 import { EmptyState } from "@/src/components/EmptyState";
-import { carsMoch } from "@/src/data/carsMoch";
+import { useCars } from "@/src/data/CarsProvider";
 import { countryName } from "@/src/data/countries";
 import { dictionary } from "@/src/data/dictionary";
 import {
@@ -25,7 +25,10 @@ export default function CarDetails() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { carId } = useLocalSearchParams<{ carId: string }>();
-  const car = carsMoch.find((item) => item.info.id === Number(carId));
+  const { getCar, ready } = useCars();
+  const car = getCar(Number(carId));
+
+  if (!car && !ready) return <EmptyState title="Loading car" />;
 
   if (!car) {
     return (
@@ -201,7 +204,7 @@ const styles = StyleSheet.create({
   },
   curiosity: {
     ...typography.body,
-    lineHeight: 22,
+    lineHeight: 25,
     paddingVertical: spacing.md,
   },
 });

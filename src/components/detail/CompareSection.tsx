@@ -10,7 +10,7 @@ import Animated, {
 import { ActionButton } from "@/src/components/ActionButton";
 import { CarPickerModal } from "@/src/components/detail/CarPickerModal";
 import { CompareBars } from "@/src/components/detail/CompareBars";
-import { carsMoch } from "@/src/data/carsMoch";
+import { useCars } from "@/src/data/CarsProvider";
 import { compareCars } from "@/src/engine/compare";
 import { radius, spacing, typography } from "@/src/theme/tokens";
 import { useTheme } from "@/src/theme/useTheme";
@@ -20,13 +20,14 @@ import { Car } from "@/src/types/car";
 // mostra as barras lado a lado (spec 4.2).
 export function CompareSection({ car }: { car: Car }) {
   const theme = useTheme();
+  const { getCar } = useCars();
   const [expanded, setExpanded] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [rivalId, setRivalId] = useState<number | null>(null);
 
   const rival = useMemo(
-    () => carsMoch.find((item) => item.info.id === rivalId) ?? null,
-    [rivalId],
+    () => (rivalId === null ? null : (getCar(rivalId) ?? null)),
+    [getCar, rivalId],
   );
   const comparisons = useMemo(
     () => (rival ? compareCars(car, rival) : []),

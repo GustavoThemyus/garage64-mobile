@@ -38,9 +38,6 @@ export default function SettingsScreen() {
           value={preference}
           onChange={setPreference}
         />
-        <Text style={[styles.hint, { color: theme.textSecondary }]}>
-          System follows your device. Light and Dark override it.
-        </Text>
       </SectionCard>
 
       <SectionCard title="About the project">
@@ -81,14 +78,9 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.xl,
   },
-  hint: {
-    ...typography.label,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.sm,
-  },
   paragraph: {
     ...typography.body,
-    lineHeight: 22,
+    lineHeight: 25,
     paddingVertical: spacing.sm,
   },
   name: {

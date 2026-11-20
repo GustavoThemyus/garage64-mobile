@@ -18,7 +18,7 @@ import { SliderControl } from "@/src/components/configurator/SliderControl";
 import { SwitchControl } from "@/src/components/configurator/SwitchControl";
 import { ControlCard } from "@/src/components/configurator/ControlCard";
 import { EmptyState } from "@/src/components/EmptyState";
-import { carsMoch } from "@/src/data/carsMoch";
+import { useCars } from "@/src/data/CarsProvider";
 import { dictionary } from "@/src/data/dictionary";
 import {
   ASPIRATIONS,
@@ -47,15 +47,14 @@ export default function ConfiguratorScreen() {
     buildId?: string;
   }>();
   const { ready, getBuild } = useBuilds();
+  const { getCar, ready: carsReady } = useCars();
 
   // Com buildId abre uma build salva pra editar. Sem ele, cria uma nova a
   // partir do carro (carId).
   const existing = buildId ? getBuild(buildId) : undefined;
-  const car = carsMoch.find(
-    (item) => item.info.id === (existing ? existing.carId : Number(carId)),
-  );
+  const car = getCar(existing ? existing.carId : Number(carId));
 
-  if (buildId && !existing && !ready) {
+  if ((buildId && !existing && !ready) || (!car && !carsReady)) {
     return <EmptyState title="Loading build" />;
   }
 
@@ -291,7 +290,7 @@ const styles = StyleSheet.create({
   },
   carModel: {
     ...typography.headline,
-    fontSize: 20,
+    fontSize: 22,
   },
   carHint: {
     ...typography.label,

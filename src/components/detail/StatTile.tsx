@@ -59,12 +59,12 @@ const styles = StyleSheet.create({
     ...typography.eyebrow,
   },
   value: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "700",
     marginTop: spacing.xs,
   },
   unit: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "600",
   },
   detail: {

@@ -53,3 +53,14 @@ export type Build = {
   warnings: BuildWarning[];
   createdAt: string;
 };
+
+// O que o configurador entrega pra salvar. Com id atualiza uma build existente,
+// sem id cria uma nova (o id e a data de criação são gerados ao salvar).
+export type BuildDraft = {
+  id?: string;
+  carId: number;
+  name: string;
+  config: BuildConfig;
+  computed: BuildPerformance;
+  warnings: BuildWarning[];
+};

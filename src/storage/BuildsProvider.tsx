@@ -9,23 +9,10 @@ import {
   useState,
 } from "react";
 
-import {
-  Build,
-  BuildConfig,
-  BuildPerformance,
-  BuildWarning,
-} from "../types/build";
-import { loadBuilds, saveBuilds } from "./buildsStorage";
-
-export type BuildDraft = {
-  // Com id, atualiza a build existente. Sem id, cria uma nova.
-  id?: string;
-  carId: number;
-  name: string;
-  config: BuildConfig;
-  computed: BuildPerformance;
-  warnings: BuildWarning[];
-};
+import { Build, BuildDraft } from "../types/build";
+import { buildFromDraft } from "./buildFromDraft";
+import { BuildsRepository } from "./buildsRepository";
+import { localBuildsRepository } from "./localBuildsRepository";
 
 type BuildsContextValue = {
   builds: Build[];
@@ -38,24 +25,32 @@ type BuildsContextValue = {
 
 const BuildsContext = createContext<BuildsContextValue | null>(null);
 
-function createId(): string {
-  return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
-}
+type BuildsProviderProps = {
+  children: ReactNode;
+  repository?: BuildsRepository;
+};
 
-export function BuildsProvider({ children }: { children: ReactNode }) {
+export function BuildsProvider({
+  children,
+  repository = localBuildsRepository,
+}: BuildsProviderProps) {
   const [builds, setBuilds] = useState<Build[]>([]);
   const [ready, setReady] = useState(false);
   // Última lista conhecida, lida de forma síncrona pelas ações. Evita perder uma
   // alteração quando duas acontecem antes do React re-renderizar.
   const latest = useRef<Build[]>([]);
 
+  const adopt = useCallback((next: Build[]) => {
+    latest.current = next;
+    setBuilds(next);
+  }, []);
+
   useEffect(() => {
     let alive = true;
-    loadBuilds()
+    repository
+      .list()
       .then((stored) => {
-        if (!alive) return;
-        latest.current = stored;
-        setBuilds(stored);
+        if (alive) adopt(stored);
       })
       .catch(() => {})
       .finally(() => {
@@ -64,13 +59,21 @@ export function BuildsProvider({ children }: { children: ReactNode }) {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [repository, adopt]);
 
-  const commit = useCallback((next: Build[]) => {
-    latest.current = next;
-    setBuilds(next);
-    saveBuilds(next).catch(() => {});
-  }, []);
+  // A tela muda na hora (otimista) e o repositório grava em seguida. Se a gravação
+  // falhar, a lista é relida do repositório pra tela não mostrar algo que não existe.
+  const persist = useCallback(
+    (operation: Promise<void>) => {
+      operation.catch(() => {
+        repository
+          .list()
+          .then(adopt)
+          .catch(() => {});
+      });
+    },
+    [repository, adopt],
+  );
 
   const getBuild = useCallback(
     (id: string) => latest.current.find((build) => build.id === id),
@@ -82,45 +85,38 @@ export function BuildsProvider({ children }: { children: ReactNode }) {
       const existing = draft.id
         ? latest.current.find((build) => build.id === draft.id)
         : undefined;
+      const build = buildFromDraft(draft, existing);
 
-      const build: Build = {
-        id: existing?.id ?? createId(),
-        carId: draft.carId,
-        name: draft.name.trim(),
-        config: draft.config,
-        computed: draft.computed,
-        warnings: draft.warnings,
-        createdAt: existing?.createdAt ?? new Date().toISOString(),
-      };
-
-      commit(
+      adopt(
         existing
           ? latest.current.map((item) => (item.id === build.id ? build : item))
           : [build, ...latest.current],
       );
+      persist(repository.save(build));
       return build;
     },
-    [commit],
+    [adopt, persist, repository],
   );
 
   const renameBuild = useCallback(
     (id: string, name: string) => {
       const trimmed = name.trim();
-      if (!trimmed) return;
-      commit(
-        latest.current.map((build) =>
-          build.id === id ? { ...build, name: trimmed } : build,
-        ),
-      );
+      const target = latest.current.find((build) => build.id === id);
+      if (!trimmed || !target) return;
+
+      const renamed = { ...target, name: trimmed };
+      adopt(latest.current.map((build) => (build.id === id ? renamed : build)));
+      persist(repository.save(renamed));
     },
-    [commit],
+    [adopt, persist, repository],
   );
 
   const deleteBuild = useCallback(
     (id: string) => {
-      commit(latest.current.filter((build) => build.id !== id));
+      adopt(latest.current.filter((build) => build.id !== id));
+      persist(repository.remove(id));
     },
-    [commit],
+    [adopt, persist, repository],
   );
 
   const value = useMemo<BuildsContextValue>(

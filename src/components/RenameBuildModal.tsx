@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   },
   title: {
     ...typography.headline,
-    fontSize: 18,
+    fontSize: 20,
   },
   input: {
     ...typography.body,

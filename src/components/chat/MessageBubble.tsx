@@ -59,6 +59,6 @@ const styles = StyleSheet.create({
   },
   text: {
     ...typography.body,
-    lineHeight: 21,
+    lineHeight: 24,
   },
 });

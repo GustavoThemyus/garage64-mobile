@@ -1,9 +1,8 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import CountryFlag from "react-native-country-flag";
-import Animated from "react-native-reanimated";
-
-import { GlassSurface } from "@/src/components/GlassSurface";
-import { usePressScale } from "@/src/components/usePressScale";
+import { PressHighlight } from "@/src/components/PressHighlight";
+import { SurfaceCard } from "@/src/components/SurfaceCard";
+import { usePressHighlight } from "@/src/components/usePressHighlight";
 import { radius, spacing, typography } from "@/src/theme/tokens";
 import { useTheme } from "@/src/theme/useTheme";
 import { Car } from "../types/car";
@@ -14,26 +13,31 @@ interface CarCardProps {
   onPress: () => void;
 }
 
+// Regra do card: a estrutura NÃO pode depender do conteúdo. Antes, o rodapé
+// colocava o tipo e o HP na mesma linha quando cabiam ("SEDAN") e quebrava
+// quando não cabiam ("SPORTS COUPE"), e dois cards da mesma linha ficavam com
+// alturas diferentes. Agora:
+//  - nome e marca ocupam sempre UMA linha (o excesso vira reticências)
+//  - o tipo é sempre uma linha e o HP é sempre a linha de baixo
+//  - o card estica até a altura do vizinho (flex: 1 de cima a baixo), então a
+//    altura da linha é a do mais alto e o rodapé fica colado embaixo em todos
 export default function CarCard({ car, onPress, cardWidth }: CarCardProps) {
   const theme = useTheme();
-  const { animatedStyle, onPressIn, onPressOut } = usePressScale();
+  const { progress, onPressIn, onPressOut } = usePressHighlight();
 
   return (
-    <Animated.View
-      style={[
-        styles.shadow,
-        { width: cardWidth, shadowColor: theme.shadow },
-        animatedStyle,
-      ]}
+    <View
+      style={[styles.shadow, { width: cardWidth, shadowColor: theme.shadow }]}
     >
       <Pressable
         onPress={onPress}
         onPressIn={onPressIn}
         onPressOut={onPressOut}
+        style={styles.pressable}
         accessibilityRole="button"
         accessibilityLabel={`${car.info.brand} ${car.info.model}`}
       >
-        <GlassSurface style={styles.card} interactive>
+        <SurfaceCard contentStyle={styles.card}>
           <View style={styles.imageWrap}>
             <Image source={{ uri: car.info.image }} style={styles.image} />
             <View
@@ -62,34 +66,33 @@ export default function CarCard({ car, onPress, cardWidth }: CarCardProps) {
             {car.info.brand} · {car.info.year}
           </Text>
 
-          <View style={styles.footer}>
-            <View
-              style={[
-                styles.typeChip,
-                { backgroundColor: theme.badgeBackground },
-              ]}
+          <View style={styles.spacer} />
+
+          <View
+            style={[styles.typeChip, { backgroundColor: theme.badgeBackground }]}
+          >
+            <Text
+              style={[styles.typeText, { color: theme.badgeText }]}
+              numberOfLines={1}
             >
-              <Text
-                style={[styles.typeText, { color: theme.badgeText }]}
-                numberOfLines={1}
-              >
-                {car.specs.type}
-              </Text>
-            </View>
-            <Text style={[styles.power, { color: theme.accentText }]}>
-              {car.performance.hp}
-              <Text style={styles.powerUnit}> HP</Text>
+              {car.specs.type}
             </Text>
           </View>
-        </GlassSurface>
+          <Text style={[styles.power, { color: theme.accentText }]}>
+            {car.performance.hp}
+            <Text style={styles.powerUnit}> HP</Text>
+          </Text>
+          <PressHighlight progress={progress} />
+        </SurfaceCard>
       </Pressable>
-    </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   // A sombra fica num wrapper porque o card recorta o conteúdo (overflow hidden),
-  // e no iOS isso cortaria a própria sombra.
+  // e no iOS isso cortaria a própria sombra. Sem altura própria: a linha do grid
+  // estica este wrapper até a altura do card mais alto.
   shadow: {
     borderRadius: radius.lg,
     borderCurve: "continuous",
@@ -98,10 +101,10 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 4,
   },
+  pressable: {
+    flex: 1,
+  },
   card: {
-    borderRadius: radius.lg,
-    borderCurve: "continuous",
-    overflow: "hidden",
     padding: spacing.md,
     gap: spacing.xs,
   },
@@ -129,31 +132,29 @@ const styles = StyleSheet.create({
   details: {
     ...typography.label,
   },
-  footer: {
-    marginTop: spacing.sm,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: spacing.sm,
+  // Empurra o tipo e o HP pro fundo do card, em qualquer altura.
+  spacer: {
+    flexGrow: 1,
+    minHeight: spacing.sm,
   },
   typeChip: {
-    flexShrink: 1,
+    alignSelf: "flex-start",
+    maxWidth: "100%",
     borderRadius: radius.pill,
     paddingHorizontal: spacing.sm,
     paddingVertical: 3,
   },
   typeText: {
     ...typography.eyebrow,
-    fontSize: 10,
-    letterSpacing: 0.5,
+    fontSize: 12,
+    letterSpacing: 0.4,
   },
   power: {
-    flexShrink: 0,
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "700",
   },
   powerUnit: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "600",
   },
 });

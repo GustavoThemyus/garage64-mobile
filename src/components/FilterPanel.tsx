@@ -87,14 +87,14 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     zIndex: 90,
   },
+  // Popover no canto, sob o botão que o abriu. Não ocupa a largura toda.
   shadow: {
     position: "absolute",
     top: spacing.sm,
     right: spacing.lg,
-    left: spacing.lg,
-    maxWidth: 360,
+    width: 300,
+    maxWidth: "92%",
     maxHeight: "78%",
-    alignSelf: "flex-end",
     zIndex: 100,
     borderRadius: radius.lg,
     borderCurve: "continuous",
@@ -135,6 +135,6 @@ const styles = StyleSheet.create({
   },
   doneText: {
     ...typography.headline,
-    fontSize: 15,
+    fontSize: 17,
   },
 });

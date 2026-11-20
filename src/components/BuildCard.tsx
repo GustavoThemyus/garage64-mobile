@@ -1,9 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import Animated from "react-native-reanimated";
-
-import { GlassSurface } from "@/src/components/GlassSurface";
-import { usePressScale } from "@/src/components/usePressScale";
+import { PressHighlight } from "@/src/components/PressHighlight";
+import { SurfaceCard } from "@/src/components/SurfaceCard";
+import { usePressHighlight } from "@/src/components/usePressHighlight";
 import { radius, spacing, typography } from "@/src/theme/tokens";
 import { useTheme } from "@/src/theme/useTheme";
 import { Build } from "@/src/types/build";
@@ -28,7 +27,7 @@ export function BuildCard({
   onDelete,
 }: BuildCardProps) {
   const theme = useTheme();
-  const { animatedStyle, onPressIn, onPressOut } = usePressScale(0.985);
+  const { progress, onPressIn, onPressOut } = usePressHighlight();
   const { computed, warnings } = build;
   const compatible = warnings.length === 0;
   const tone = compatible ? theme.positive : theme.negative;
@@ -42,9 +41,7 @@ export function BuildCard({
   ];
 
   return (
-    <Animated.View
-      style={[styles.shadow, { shadowColor: theme.shadow }, animatedStyle]}
-    >
+    <View style={[styles.shadow, { shadowColor: theme.shadow }]}>
       <Pressable
         onPress={onPress}
         onPressIn={onPressIn}
@@ -52,7 +49,7 @@ export function BuildCard({
         accessibilityRole="button"
         accessibilityLabel={`Edit build ${build.name}`}
       >
-        <GlassSurface style={styles.card} interactive>
+        <SurfaceCard contentStyle={styles.card}>
           <View style={styles.top}>
             {car ? (
               <Image
@@ -126,9 +123,10 @@ export function BuildCard({
               </View>
             ))}
           </View>
-        </GlassSurface>
+          <PressHighlight progress={progress} />
+        </SurfaceCard>
       </Pressable>
-    </Animated.View>
+    </View>
   );
 }
 
@@ -142,9 +140,6 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   card: {
-    borderRadius: radius.lg,
-    borderCurve: "continuous",
-    overflow: "hidden",
     padding: spacing.md,
     gap: spacing.md,
   },
@@ -196,7 +191,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   statValue: {
-    fontSize: 17,
+    fontSize: 19,
     fontWeight: "700",
   },
   statLabel: {
