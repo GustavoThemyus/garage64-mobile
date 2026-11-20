@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
   },
 
   blur: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
 
   content: {
@@ -299,6 +299,6 @@ const styles = StyleSheet.create({
 
   backdrop: {
     zIndex: 90,
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
 });
