@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import {
   DarkTheme,
   DefaultTheme,
+  getFocusedRouteNameFromRoute,
   ThemeProvider,
 } from "expo-router/react-navigation";
 import * as SplashScreen from "expo-splash-screen";
@@ -17,6 +18,14 @@ import { useThemeController } from "@/src/theme/useTheme";
 export {
   ErrorBoundary,
 } from "expo-router";
+
+// O botão de voltar do iOS mostra o título da tela anterior. Sem título, a rota raiz "(tabs)" aparecia com o nome do arquivo.
+const TAB_TITLES: Record<string, string> = {
+  "(catalog)": "Catalog",
+  "(builds)": "Builds",
+  "(assistant)": "Assistant",
+  "(settings)": "Settings",
+};
 
 export const unstable_settings = {
   // base da pilha ao recarregar numa tela empilhada
@@ -68,7 +77,13 @@ function RootLayoutNav() {
     <ThemeProvider value={navigationTheme}>
       <StatusBar style={scheme === "dark" ? "light" : "dark"} />
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="(tabs)"
+          options={({ route }) => ({
+            headerShown: false,
+            title: TAB_TITLES[getFocusedRouteNameFromRoute(route) ?? ""] ?? "Catalog",
+          })}
+        />
         <Stack.Screen name="carDetails" options={{ title: "Details" }} />
       </Stack>
     </ThemeProvider>
