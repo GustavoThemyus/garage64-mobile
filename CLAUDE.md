@@ -43,7 +43,8 @@ Regras que não mudam: autor dos commits é o do `git config` do usuário e nunc
 | `npm run build:web`                               | Gera `dist/`, o mesmo comando que a Vercel roda                 |
 | `npx tsc --noEmit`                                | Checagem de tipos                                               |
 | `npx expo-doctor`                                 | Confere configuração e versões do projeto (20 checagens)        |
-| `npm run verify:engine`                           | Verifica motor, filtros, storage, repositórios e serviço do Assistant contra os 14 carros do mock (414 checagens) |
+| `npm run seed:sql`                                | Regenera `supabase/seed.sql` a partir do mock                   |
+| `npm run verify:engine`                           | Verifica motor, filtros, storage, repositórios e serviço do Assistant contra os 14 carros do mock (423 checagens) |
 
 Precisa de **Node 22.13 ou mais novo** (`.nvmrc` e `engines` pedem 22.x).
 
@@ -81,7 +82,7 @@ O comportamento do app está especificado em `docs/spec.md`, em português. O pl
 **Dados.**
 
 - `Car` (`src/types/car.ts`) é aninhado em cinco grupos: `info`, `specs`, `performance`, `rules`, `history`. Todo acesso passa pelo grupo (`car.performance.hp`). `weight`, `torque` e `topSpeed` são pares de números: peso e velocidade são a mesma grandeza em duas unidades, torque é valor mais rotação.
-- O catálogo é o mock `src/data/carsMoch.ts` (14 carros, somente leitura; o nome do arquivo tem erro de grafia herdado). As telas **não importam o mock**: leem por `useCars()` (`src/data/CarsProvider.tsx`), que usa um `CarsRepository` (`carsRepository.ts`). Trocar pelo Supabase é escrever outra implementação da interface.
+- O catálogo é o mock `src/data/carsMoch.ts` (14 carros, somente leitura; o nome do arquivo tem erro de grafia herdado). As telas **não importam o mock**: leem por `useCars()` (`src/data/CarsProvider.tsx`), que usa um `CarsRepository` (`carsRepository.ts`). Com `EXPO_PUBLIC_SUPABASE_*` o `src/data/repositories.ts` troca pela implementação do Supabase (`src/supabase/carsRepository.ts`), com o mock como reserva se o banco falhar.
 - `Build` (`src/types/build.ts`) referencia o carro por `carId`, nunca copia. `src/data/partsCatalog.ts` tem as opções do configurator e os coeficientes (o mock só tem um valor por campo, o de fábrica). `dictionary.ts` guarda os rótulos, `formatters.ts` formata por significado, `countries.ts` traduz o código ISO.
 
 **Motor.** `src/engine/`, funções puras sem React, todas cobertas por `scripts/verify-engine.ts`.
@@ -90,7 +91,7 @@ O comportamento do app está especificado em `docs/spec.md`, em português. O pl
 - `validate.ts`: aplica `car.rules` e devolve avisos. **Nunca bloqueia.** `aspiration.ts` normaliza o texto de aspiração (specs e rules escrevem diferente). `config.ts` dá a configuração de fábrica e as faixas dos sliders. `evaluate.ts` junta cálculo e avisos.
 - `compare.ts`, `delta.ts`, `filterBuilds.ts`: barras do Compare, diferença contra a fábrica e filtro de builds.
 
-**Builds.** `BuildsProvider` fala com um `BuildsRepository` (`list`, `save`, `remove`, por item). A implementação local (`localBuildsRepository.ts`) usa o AsyncStorage sob a chave `garage64:builds:v1`, com uma fila de gravação. `buildFromDraft.ts` é a regra pura do id e da data de criação. `parseBuilds.ts` lê o JSON sem nunca quebrar o app.
+**Builds.** `BuildsProvider` fala com um `BuildsRepository` (`list`, `save`, `remove`, por item). `src/supabase/` tem o cliente (`client.ts`, login anônimo), o mapeamento linha↔build (`buildRows.ts`) e o repositório remoto (`remoteBuildsRepository.ts`, puro e testado; `buildsRepository.ts` liga ao SDK). Na primeira leitura o remoto sobe uma vez as builds do aparelho. SQL em `supabase/migrations/`, seed gerado por `npm run seed:sql`. A implementação local (`localBuildsRepository.ts`) usa o AsyncStorage sob a chave `garage64:builds:v1`, com uma fila de gravação. `buildFromDraft.ts` é a regra pura do id e da data de criação. `parseBuilds.ts` lê o JSON sem nunca quebrar o app.
 
 **Filtros.** Um modelo neutro (`src/components/filters/types.ts`, montado por `filterModels.ts`) alimenta as duas formas de UI. `FilterControl` escolhe: no iOS, `NativeFilterMenu` (balão nativo ancorado no botão do header, um submenu por categoria); no Android e na web, `FilterToolbarButton` mais `FilterPanel` (popover no canto). Regra: **OU dentro de uma categoria, E entre categorias, categoria vazia não filtra** (`filterCars.ts`, `filterBuilds.ts`).
 
@@ -105,10 +106,11 @@ O comportamento do app está especificado em `docs/spec.md`, em português. O pl
 - **Frontend da v1 completo**, com as 4 tabs da spec: Catalog (grade, filtros), Car Detail (7 blocos), Compare, Build Configurator (controles, resultado em tempo real, avisos de compatibilidade), Builds (editar, renomear, excluir, filtrar), Settings (tema, sobre, links) e Assistant (tela de chat completa).
 - **Visual aprovado no iPhone** (Expo Go, SDK 58): tabs nativas, balão de filtro, cards com aro em degradê e seletor nativo de tema.
 - **Web:** o header é opaco e a tab bar tem altura e folga de baixo explícitas (`_layout.web.tsx`). A web nunca terá tab nativa, título grande nem menu nativo do iOS (limite do navegador); o README explica e indica o Expo Go como experiência completa.
-- **Tudo roda local.** Catálogo é o mock, builds ficam no aparelho, e o Assistant responde que está offline.
+- **Supabase codificado, sem projeto criado.** Sem as variáveis o app segue local. Passos em `README.md` (Database setup).
+- **Tudo roda local por padrão.** Catálogo é o mock, builds ficam no aparelho, e o Assistant responde que está offline.
 - **Depende de backend e ainda não existe:** contas e armazenamento na nuvem (spec fase 2), cálculo no servidor (fase 3) e a resposta do Assistant (fase 4).
 - **Deploy:** a configuração está pronta (web na Vercel, APK pelo EAS). Falta criar as contas e fazer o primeiro deploy. Passos em `README.md` (Next steps) e `docs/deploy.md`.
-- **Verificações no último commit:** `tsc` limpo, `expo-doctor` 20/20, `verify:engine` 414/414 e os exports de iOS, Android e web passam.
+- **Verificações no último commit:** `tsc` limpo, `expo-doctor` 20/20, `verify:engine` 423/423 e os exports de iOS, Android e web passam.
 
 ---
 

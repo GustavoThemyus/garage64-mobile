@@ -124,6 +124,8 @@ Até aqui o iPhone usa a etapa A. Pra ter o app nativo, com o vidro líquido de 
 
 ## 5. Etapa D: banco (Supabase, spec fase 2)
 
+**Estado:** o código desta etapa está feito (`src/supabase/`, `src/data/repositories.ts`, `supabase/migrations/0001_init.sql`, `npm run seed:sql`). Falta só criar o projeto, rodar o SQL e definir as variáveis (passos em `README.md`, Database setup). Diferenças em relação ao plano abaixo: `builds.id` é `text` com chave `(user_id, id)`, porque o app gera o próprio id; o catálogo cai no mock se o banco falhar; as builds do aparelho sobem uma vez na primeira leitura.
+
 1. Criar um projeto no Supabase (plano grátis). Projetos grátis podem ser pausados por inatividade, conferir a regra atual no painel.
 2. Tabelas, com o catálogo guardado como o próprio tipo `Car` em `jsonb`:
    ```sql

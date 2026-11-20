@@ -72,10 +72,12 @@ src/
   config/                  environment variables
   engine/                  calculation, compatibility rules, comparison, filters
   storage/                 builds repository, provider and parsing
+  supabase/                client, anonymous sign-in and the database repositories
   services/                assistant service (offline until an API URL is set)
   theme/                   color tokens, spacing, typography, theme provider
   types/                   Car and Build models
 scripts/verify-engine.ts   checks for the engine, filters, storage and services
+supabase/                  SQL schema and the generated catalog seed
 public/                    web manifest and icons, copied into the web build
 docs/                      spec (Portuguese) and deployment plan
 app.json eas.json          Expo and EAS Build configuration (Android APK profile)
@@ -138,7 +140,7 @@ In the order I plan to do them. Each step is detailed in [`docs/deploy.md`](docs
 1. **Put the web build online.** Create the Vercel project from this repository and leave every setting at its default except Framework Preset, which is `Other`. The build command, the output folder, the single page rewrite, the PWA files and the Node version are already set up in the repository, so this only needs the account.
 2. **Build the Android APK** with `eas build -p android --profile preview` and share the install link. Confirm the app identifier `com.gustavothemyus.garage64` first, because it cannot change after publishing.
 3. **Add continuous integration:** type check, `expo-doctor` and `verify:engine` on every pull request.
-4. **Supabase (spec phase 2).** Write a `CarsRepository` and a `BuildsRepository` backed by the database, with anonymous auth. No screen needs to change.
+4. **Supabase (spec phase 2).** The code is written (repositories, anonymous sign-in, SQL, seed). What is left is creating the project, running the SQL and setting the two variables, see [Database setup](#database-setup). Sharing builds between devices needs a real login, which is not built yet.
 5. **Next.js API (spec phases 3 and 4).** Move the calculation to the server and answer the Assistant through `POST /api/assistant`. The app already speaks that contract once `EXPO_PUBLIC_API_URL` is set.
 6. **Native iOS build through TestFlight** (optional, needs a paid Apple developer account).
 
@@ -153,11 +155,21 @@ Without any configuration the app runs fully local. To turn on the backend piece
 | Variable | Turns on |
 | --- | --- |
 | `EXPO_PUBLIC_API_URL` | the Assistant, through `POST /api/assistant` |
-| `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY` | reserved for the Supabase phase |
+| `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY` | the catalog and the builds in Supabase. Both must be set, otherwise the app stays local |
 
 Everything named `EXPO_PUBLIC_*` ends up in the app bundle and is public. Never put a secret key there.
 
-The catalog and the builds are read through two small interfaces, `CarsRepository` and `BuildsRepository`. Today they are backed by the local mock and the device storage. Moving to a database means writing another implementation of each interface, not changing screens. The steps are in [`docs/deploy.md`](docs/deploy.md).
+The catalog and the builds are read through two small interfaces, `CarsRepository` and `BuildsRepository`. `src/data/repositories.ts` picks the implementation: the local mock and device storage by default, Supabase when both `EXPO_PUBLIC_SUPABASE_*` variables are set. No screen knows which one is in use. The steps are in [`docs/deploy.md`](docs/deploy.md).
+
+### Database setup
+
+1. Create a free project at supabase.com.
+2. In the project, open Authentication, then Sign In / Providers, and turn on **Anonymous sign-ins**.
+3. Open the SQL Editor and run `supabase/migrations/0001_init.sql`, then `supabase/seed.sql` (it holds the 14 cars; regenerate it with `npm run seed:sql` after editing the mock).
+4. Copy the project URL and the anon key (Project Settings, API) into `.env`, and into the Vercel project's Environment Variables for the web build. The anon key is public by design: Row Level Security keeps each user's builds private. Never use the `service_role` key in the app.
+5. Restart with `npm start`. The first run signs in anonymously and uploads the builds that were already saved on the device, once.
+
+If the database is unreachable, the catalog falls back to the local mock. The builds list does not: it shows empty until the connection is back.
 
 ---
 
@@ -165,7 +177,7 @@ The catalog and the builds are read through two small interfaces, `CarsRepositor
 
 **The calculation is simulated.** It is a plain model, not measurements. It is easy to tune, but the numbers are not real.
 
-**Builds live on one device.** They are stored in AsyncStorage, so clearing the app or browser data deletes them, and they do not sync between devices.
+**Builds live on one device.** Without Supabase they are stored in AsyncStorage, so clearing the app or browser data deletes them. With Supabase they belong to an anonymous user tied to that device, so clearing the data still loses access to them and they do not appear on another device. Sharing between devices needs an email login, which is not built.
 
 **The Assistant answers nothing yet.** The interface and the HTTP client are done, and the service stays switched off until `EXPO_PUBLIC_API_URL` points to an API that implements the contract in `docs/deploy.md`.
 
