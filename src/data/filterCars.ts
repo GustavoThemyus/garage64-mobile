@@ -5,6 +5,14 @@ export interface FilterCriteria {
   selectedCountry: string[];
 }
 
+export function hasActiveFilters(criteria: FilterCriteria): boolean {
+  return (
+    criteria.selectedBrand.length > 0 ||
+    criteria.selectedType.length > 0 ||
+    criteria.selectedCountry.length > 0
+  );
+}
+
 export function filterCars(carsList: Car[], criteria: FilterCriteria) {
   if (
     criteria.selectedBrand.length === 0 &&

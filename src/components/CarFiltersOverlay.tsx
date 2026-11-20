@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { FilterPanel } from "@/src/components/FilterPanel";
 import { FilterSection } from "@/src/components/FilterSection";
 import { carsMoch } from "../data/carsMoch";
-import { FilterCriteria } from "../data/filterCars";
+import { FilterCriteria, hasActiveFilters } from "../data/filterCars";
 import { getFilterOptions } from "../data/filterOptions";
 
 type Props = {
@@ -26,17 +26,12 @@ export function CarFiltersOverlay({
 }: Props) {
   const options = useMemo(() => getFilterOptions(carsMoch), []);
 
-  const hasSelection =
-    selectedFilters.selectedBrand.length > 0 ||
-    selectedFilters.selectedCountry.length > 0 ||
-    selectedFilters.selectedType.length > 0;
-
   return (
     <FilterPanel
       isOpen={isOpen}
       onClose={onClose}
       onClear={onClear}
-      canClear={hasSelection}
+      canClear={hasActiveFilters(selectedFilters)}
       doneLabel={resultCount === 1 ? "Show 1 car" : `Show ${resultCount} cars`}
     >
       <FilterSection

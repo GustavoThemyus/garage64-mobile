@@ -7,6 +7,7 @@ import { normalizeAspiration } from "../src/engine/aspiration";
 import { calculateBuild } from "../src/engine/calculate";
 import { compareCars } from "../src/engine/compare";
 import { getConfigRanges, getFactoryConfig } from "../src/engine/config";
+import { EMPTY_BUILD_FILTERS, filterBuilds, hasActiveBuildFilters } from "../src/engine/filterBuilds";
 import { evaluateBuild } from "../src/engine/evaluate";
 import { validateBuild } from "../src/engine/validate";
 import { parseBuilds } from "../src/storage/parseBuilds";
@@ -153,6 +154,31 @@ check("storage: non-array gives an empty list", parseBuilds('{"id":"x"}').length
 check("storage: drops only the invalid items", parseBuilds(JSON.stringify([sample, { id: 1 }, null, sample])).length === 2);
 check("storage: rejects an unknown aspiration", parseBuilds(JSON.stringify([{ ...sample, config: { ...sample.config, aspiration: "warp-drive" } }])).length === 0);
 check("storage: rejects a malformed result", parseBuilds(JSON.stringify([{ ...sample, computed: { hp: 1 } }])).length === 0);
+
+// 11. Filtro de builds: critérios opcionais e combináveis.
+const makeBuild = (id: string, car: typeof civic, patch: Partial<typeof civicFactory>): Build => {
+  const config = { ...getFactoryConfig(car), ...patch };
+  const evaluation = evaluateBuild(car, config);
+  return { id, carId: car.info.id, name: id, config, computed: evaluation.performance, warnings: evaluation.warnings, createdAt: "2026-01-01T00:00:00.000Z" };
+};
+const stock = makeBuild("civic-stock", civic, {});
+const boosted = makeBuild("civic-boosted", civic, { aspiration: "single-turbo", nos: true });
+const invalid = makeBuild("civic-awd", civic, { awd: true });
+const gtr = makeBuild("skyline-stock", skyline, {});
+const all = [stock, boosted, invalid, gtr];
+const ids = (list: Build[]) => list.map((b) => b.id).join(",");
+
+check("filterBuilds: empty criteria keeps everything", filterBuilds(all, EMPTY_BUILD_FILTERS, carsMoch).length === 4);
+check("filterBuilds: empty criteria is inactive", !hasActiveBuildFilters(EMPTY_BUILD_FILTERS));
+check("filterBuilds: by base car", ids(filterBuilds(all, { ...EMPTY_BUILD_FILTERS, carIds: [skyline.info.id] }, carsMoch)) === "skyline-stock");
+check("filterBuilds: by brand", filterBuilds(all, { ...EMPTY_BUILD_FILTERS, brands: ["Honda"] }, carsMoch).length === 3);
+check("filterBuilds: two brands add up (OR)", filterBuilds(all, { ...EMPTY_BUILD_FILTERS, brands: ["Honda", "Nissan"] }, carsMoch).length === 4);
+check("filterBuilds: only compatible", ids(filterBuilds(all, { ...EMPTY_BUILD_FILTERS, compatibility: "compatible" }, carsMoch)) === "civic-stock,civic-boosted,skyline-stock");
+check("filterBuilds: only with warnings", ids(filterBuilds(all, { ...EMPTY_BUILD_FILTERS, compatibility: "warnings" }, carsMoch)) === "civic-awd");
+check("filterBuilds: hp range 200-300 holds the boosted Civic", ids(filterBuilds(all, { ...EMPTY_BUILD_FILTERS, hpRange: "200-300" }, carsMoch)).includes("civic-boosted"));
+check("filterBuilds: hp range under 200 holds the stock Civic", ids(filterBuilds(all, { ...EMPTY_BUILD_FILTERS, hpRange: "under-200" }, carsMoch)).includes("civic-stock"));
+check("filterBuilds: criteria combine (AND)", ids(filterBuilds(all, { ...EMPTY_BUILD_FILTERS, brands: ["Honda"], compatibility: "compatible", hpRange: "200-300" }, carsMoch)) === "civic-boosted");
+check("filterBuilds: no match gives an empty list", filterBuilds(all, { ...EMPTY_BUILD_FILTERS, brands: ["Honda"], hpRange: "over-400" }, carsMoch).length === 0);
 
 console.log(`${checks - failures}/${checks} checks passed`);
 if (failures > 0) {

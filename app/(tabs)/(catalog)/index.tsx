@@ -1,19 +1,12 @@
-import { Ionicons } from "@expo/vector-icons";
-import { router, Stack } from "expo-router";
+import { router } from "expo-router";
 import { useState } from "react";
-import {
-  FlatList,
-  Platform,
-  Pressable,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { FlatList, StyleSheet, useWindowDimensions, View } from "react-native";
 
 import CarCard from "@/src/components/CarCard";
 import { CarFiltersOverlay } from "@/src/components/CarFiltersOverlay";
+import { FilterToolbarButton } from "@/src/components/FilterToolbarButton";
 import { carsMoch } from "@/src/data/carsMoch";
-import { filterCars, FilterCriteria } from "@/src/data/filterCars";
+import { filterCars, FilterCriteria, hasActiveFilters } from "@/src/data/filterCars";
 import { spacing } from "@/src/theme/tokens";
 import { useTheme } from "@/src/theme/useTheme";
 
@@ -56,38 +49,10 @@ export default function CatalogScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {Platform.OS === "web" ? (
-        // A web não tem Stack.Toolbar, então o botão vai no header como view.
-        <Stack.Screen
-          options={{
-            headerRight: () => (
-              <Pressable
-                onPress={toggleFilterPanel}
-                accessibilityLabel="Filters"
-                style={styles.webFilterButton}
-              >
-                <Ionicons
-                  name="options-outline"
-                  size={24}
-                  color={theme.accentText}
-                />
-              </Pressable>
-            ),
-          }}
-        />
-      ) : (
-        <Stack.Toolbar placement="right">
-          <Stack.Toolbar.Button
-            icon={
-              isFilterOpen
-                ? "line.3.horizontal.decrease.circle.fill"
-                : "line.3.horizontal.decrease.circle"
-            }
-            accessibilityLabel="Filters"
-            onPress={toggleFilterPanel}
-          />
-        </Stack.Toolbar>
-      )}
+      <FilterToolbarButton
+        onPress={toggleFilterPanel}
+        active={isFilterOpen || hasActiveFilters(filters)}
+      />
 
       <FlatList
         data={carsForShow}
@@ -135,8 +100,5 @@ const styles = StyleSheet.create({
     gap: GRID_GAP,
     marginBottom: spacing.md,
     justifyContent: "center",
-  },
-  webFilterButton: {
-    paddingHorizontal: spacing.md,
   },
 });
